@@ -3,7 +3,8 @@ using Microsoft.JSInterop;
 namespace TruvoID.Components.Services;
 
 /// <summary>
-/// Manages JWT access and refresh tokens via browser localStorage.
+/// Manages JWT tokens via browser localStorage.
+/// All JS calls are guarded against SSR prerendering (JS interop unavailable during static render).
 /// </summary>
 public class TokenService
 {
@@ -19,33 +20,52 @@ public class TokenService
 
     public async Task<string?> GetAccessTokenAsync()
     {
-        return await _js.InvokeAsync<string?>("localStorage.getItem", AccessTokenKey);
+        try { return await _js.InvokeAsync<string?>("localStorage.getItem", AccessTokenKey); }
+        catch (InvalidOperationException) { return null; }
+        catch (JSDisconnectedException) { return null; }
     }
 
     public async Task<string?> GetRefreshTokenAsync()
     {
-        return await _js.InvokeAsync<string?>("localStorage.getItem", RefreshTokenKey);
+        try { return await _js.InvokeAsync<string?>("localStorage.getItem", RefreshTokenKey); }
+        catch (InvalidOperationException) { return null; }
+        catch (JSDisconnectedException) { return null; }
     }
 
     public async Task<DateTime?> GetTokenExpiryAsync()
     {
-        var expiryStr = await _js.InvokeAsync<string?>("localStorage.getItem", ExpiryKey);
-        if (string.IsNullOrEmpty(expiryStr)) return null;
-        return DateTime.TryParse(expiryStr, out var expiry) ? expiry : null;
+        try
+        {
+            var expiryStr = await _js.InvokeAsync<string?>("localStorage.getItem", ExpiryKey);
+            if (string.IsNullOrEmpty(expiryStr)) return null;
+            return DateTime.TryParse(expiryStr, out var expiry) ? expiry : null;
+        }
+        catch (InvalidOperationException) { return null; }
+        catch (JSDisconnectedException) { return null; }
     }
 
     public async Task SetTokensAsync(string accessToken, string refreshToken, DateTime expiresAt)
     {
-        await _js.InvokeVoidAsync("localStorage.setItem", AccessTokenKey, accessToken);
-        await _js.InvokeVoidAsync("localStorage.setItem", RefreshTokenKey, refreshToken);
-        await _js.InvokeVoidAsync("localStorage.setItem", ExpiryKey, expiresAt.ToString("O"));
+        try
+        {
+            await _js.InvokeVoidAsync("localStorage.setItem", AccessTokenKey, accessToken);
+            await _js.InvokeVoidAsync("localStorage.setItem", RefreshTokenKey, refreshToken);
+            await _js.InvokeVoidAsync("localStorage.setItem", ExpiryKey, expiresAt.ToString("O"));
+        }
+        catch (InvalidOperationException) { }
+        catch (JSDisconnectedException) { }
     }
 
     public async Task ClearTokensAsync()
     {
-        await _js.InvokeVoidAsync("localStorage.removeItem", AccessTokenKey);
-        await _js.InvokeVoidAsync("localStorage.removeItem", RefreshTokenKey);
-        await _js.InvokeVoidAsync("localStorage.removeItem", ExpiryKey);
+        try
+        {
+            await _js.InvokeVoidAsync("localStorage.removeItem", AccessTokenKey);
+            await _js.InvokeVoidAsync("localStorage.removeItem", RefreshTokenKey);
+            await _js.InvokeVoidAsync("localStorage.removeItem", ExpiryKey);
+        }
+        catch (InvalidOperationException) { }
+        catch (JSDisconnectedException) { }
     }
 
     public async Task<bool> IsTokenExpiredAsync()
