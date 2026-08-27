@@ -1,6 +1,7 @@
 @page "/verify"
 @rendermode InteractiveServer
-@inject IVerificationService VerificationService
+@layout DashboardLayout
+@inject ApiClient Api
 
 <PageTitle>Verify — TruvoID</PageTitle>
 
@@ -15,15 +16,15 @@
                     <div class="mb-3">
                         <label class="form-label">Verification Type</label>
                         <select class="form-select" @bind="_selectedType">
-                            <option value="0">NIN</option>
-                            <option value="1">BVN</option>
-                            <option value="2">Phone Number</option>
+                            <option value="nin">NIN</option>
+                            <option value="bvn">BVN</option>
+                            <option value="phone">Phone Number</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Subject Identifier</label>
                         <input type="text" class="form-control" @bind="_subjectRef"
-                               placeholder="@(_selectedType == "2" ? "08012345678" : "Enter 11-digit number")" />
+                               placeholder="@(_selectedType == "phone" ? "08012345678" : "Enter 11-digit number")" />
                     </div>
                     <button class="btn btn-primary" @onclick="SubmitVerification" disabled="@_isLoading">
                         @(_isLoading ? "Verifying..." : "Run Verification")
@@ -36,9 +37,7 @@
         {
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">
-                        Result
-                    </div>
+                    <div class="card-header">Result</div>
                     <div class="card-body">
                         <p><strong>Status:</strong> <span class="badge @(_result.Status == "match" ? "bg-success" : _result.Status == "no_match" ? "bg-warning" : "bg-danger")">@_result.Status</span></p>
                         <p><strong>Call ID:</strong> @_result.CallId</p>
@@ -61,19 +60,30 @@
 </div>
 
 @code {
-    private string _selectedType = "0";
+    private string _selectedType = "nin";
     private string _subjectRef = string.Empty;
     private bool _isLoading;
     private VerificationResponse? _result;
-    private Guid _institutionId = Guid.Empty;
 
     private async Task SubmitVerification()
     {
         if (string.IsNullOrWhiteSpace(_subjectRef)) return;
 
         _isLoading = true;
-        var type = Enum.Parse<VerificationType>(_selectedType);
-        _result = await VerificationService.VerifyAsync(_institutionId, type, _subjectRef);
-        _isLoading = false;
+        _result = null;
+        try
+        {
+            _result = await Api.PostAsync<VerificationResponse>(
+                $"/v1/verify/{_selectedType}",
+                new { reference = _subjectRef });
+        }
+        catch (Exception ex)
+        {
+            _result = new VerificationResponse { ErrorMessage = ex.Message };
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 }

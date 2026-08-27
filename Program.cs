@@ -1,45 +1,15 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using TruvoID.API.Extensions;
-using TruvoID.API.Middleware;
 using TruvoID.Components;
 using TruvoID.Components.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Railway / Cloud: bind to PORT env var
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://+:{port}");
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-// API controllers
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-
-// JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured.");
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"] ?? "TruvoID",
-        ValidAudience = jwtSettings["Audience"] ?? "TruvoID",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        ClockSkew = TimeSpan.FromMinutes(1) // Reduce default 5min skew
-    };
-});
 
 builder.Services.AddAuthorization();
 
@@ -47,34 +17,16 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<TruvoIDAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<TruvoIDAuthStateProvider>());
+
+// HttpClient points to the separate BE API service
+var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL")
+    ?? builder.Configuration["ApiBaseUrl"]
+    ?? "http://localhost:5000";
+builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<ApiClient>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("/") });
-
-// CORS for dashboard SPA and external API consumers
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
-// Add TruvoID services (DB, Redis, business services)
-builder.Services.AddTruvoIDServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Seed default data (pricing rates) on first run
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<TruvoID.Infrastructure.Data.TruvoIDDbContext>();
-    await db.Database.EnsureCreatedAsync();
-    await TruvoID.Infrastructure.Data.SeedData.SeedAsync(db);
-}
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -83,22 +35,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
-app.UseCors();
-
-// API key authentication for /v1 API endpoints
-app.UseWhen(
-    context => context.Request.Path.StartsWithSegments("/v1"),
-    appBuilder => appBuilder.UseMiddleware<ApiKeyAuthenticationMiddleware>());
-
-// Routing must come before Authorization
 app.UseRouting();
-app.UseAuthentication();
 app.UseAuthorization();
-
-// Map API controllers
-app.MapControllers();
-
-// Blazor Razor components for the dashboard
 app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

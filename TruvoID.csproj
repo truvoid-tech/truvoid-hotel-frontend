@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- src/ folder still exists locally but belongs to the separate BE repo — exclude from FE compilation -->
+        <Compile Remove="src\**" />
+        <Content Remove="src\**" />
+        <EmbeddedResource Remove="src\**" />
+        <None Remove="src\**" />
+    </ItemGroup>
+
+</Project>
