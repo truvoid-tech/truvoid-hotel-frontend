@@ -1,10 +1,10 @@
-@page "/settings"
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+﻿@page "/settings"
+@rendermode InteractiveServer
 @layout DashboardLayout
 @inject ApiClient Api
 @inject NavigationManager Nav
 
-<PageTitle>TruvoID — Settings</PageTitle>
+<PageTitle>TruvoID â€” Settings</PageTitle>
 
 <div class="px-margin-mobile md:px-margin-desktop py-8 md:py-12 flex-1">
 
@@ -49,7 +49,7 @@
         </div>
     }
 
-    <!-- ═══════════════ INSTITUTION PROFILE TAB ═══════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• INSTITUTION PROFILE TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     @if (_activeTab == "profile")
     {
         <div class="bg-paper-white border border-outline-variant rounded-xl overflow-hidden">
@@ -110,7 +110,7 @@
         </div>
     }
 
-    <!-- ═══════════════ NOTIFICATIONS TAB ═══════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• NOTIFICATIONS TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     @if (_activeTab == "notifications")
     {
         <div class="space-y-6">
@@ -122,9 +122,9 @@
                 </div>
                 <div class="p-6 md:p-8 space-y-6">
                     <div>
-                        <label class="block font-label-sm text-label-sm text-deep-navy mb-2 uppercase">Alert Threshold (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-deep-navy mb-2 uppercase">Alert Threshold (â‚¦)</label>
                         <div class="relative max-w-sm">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-gray">₦</span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-gray">â‚¦</span>
                             <input @bind="_alertThreshold"
                                    class="w-full pl-8 pr-4 py-3 border border-outline-variant rounded-lg font-body-sm text-body-sm focus:border-deep-navy outline-none"
                                    placeholder="10000" />
@@ -194,7 +194,7 @@
         </div>
     }
 
-    <!-- ═══════════════ SECURITY TAB ═══════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SECURITY TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     @if (_activeTab == "security")
     {
         <div class="space-y-6">

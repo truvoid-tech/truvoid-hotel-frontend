@@ -1,9 +1,9 @@
-@page "/dashboard/verify/new"
+﻿@page "/dashboard/verify/new"
 @layout DashboardLayout
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode InteractiveServer
 @inject ApiClient Api
 
-<PageTitle>New Verification — TruvoID</PageTitle>
+<PageTitle>New Verification â€” TruvoID</PageTitle>
 
 <style>
     .type-card { cursor: pointer; transition: all 0.3s ease; }
@@ -22,7 +22,7 @@
 
     @if (Step == 1)
     {
-        <!-- ═══════════ STEP 1: Select Verification Type ═══════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â• STEP 1: Select Verification Type â•â•â•â•â•â•â•â•â•â•â• -->
         <div class="step-fade-in">
             <div class="text-center md:text-left mb-16 md:w-2/3">
                 <h1 class="font-display-lg text-display-lg text-deep-navy mb-4">Select Verification Type</h1>
@@ -36,7 +36,7 @@
                     <div class="flex justify-between items-start mb-8">
                         <span class="material-symbols-outlined card-icon text-[32px] text-slate-gray transition-colors duration-300">badge</span>
                         <div class="bg-surface-container px-3 py-1.5 rounded flex items-center gap-2">
-                            <span class="font-label-md text-label-md text-deep-navy">₦100.00</span>
+                            <span class="font-label-md text-label-md text-deep-navy">â‚¦100.00</span>
                             <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ Hit</span>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                     <div class="flex justify-between items-start mb-8">
                         <span class="material-symbols-outlined card-icon text-[32px] text-slate-gray transition-colors duration-300">account_balance</span>
                         <div class="bg-surface-container px-3 py-1.5 rounded flex items-center gap-2">
-                            <span class="font-label-md text-label-md text-deep-navy">₦150.00</span>
+                            <span class="font-label-md text-label-md text-deep-navy">â‚¦150.00</span>
                             <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ Hit</span>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                     <div class="flex justify-between items-start mb-8">
                         <span class="material-symbols-outlined card-icon text-[32px] text-slate-gray transition-colors duration-300">phone_iphone</span>
                         <div class="bg-surface-container px-3 py-1.5 rounded flex items-center gap-2">
-                            <span class="font-label-md text-label-md text-deep-navy">₦50.00</span>
+                            <span class="font-label-md text-label-md text-deep-navy">â‚¦50.00</span>
                             <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ Hit</span>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
     }
     else if (Step == 2)
     {
-        <!-- ═══════════ STEP 2: Input Details ═══════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â• STEP 2: Input Details â•â•â•â•â•â•â•â•â•â•â• -->
         <div class="step-fade-in max-w-3xl mx-auto">
             <div class="mb-8">
                 <div class="flex justify-between text-label-sm font-label-sm text-outline mb-2">
@@ -174,7 +174,7 @@
     }
     else if (Step == 3)
     {
-        <!-- ═══════════ STEP 3: Processing ═══════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â• STEP 3: Processing â•â•â•â•â•â•â•â•â•â•â• -->
         <div class="step-fade-in max-w-2xl mx-auto text-center py-16">
             <div class="spinner mx-auto mb-8"></div>
             <h2 class="font-headline-md text-headline-md text-deep-navy mb-2">Connecting to Verification Registry</h2>
@@ -190,7 +190,7 @@
     }
     else if (Step == 4 && _result is not null)
     {
-        <!-- ═══════════ STEP 4: Result ═══════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â•â• STEP 4: Result â•â•â•â•â•â•â•â•â•â•â• -->
         <div class="step-fade-in max-w-3xl mx-auto">
 
             @if (_result.Status == "match" && _result.Data is not null)

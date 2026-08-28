@@ -48,7 +48,14 @@ public class ApiClient
 
     public async Task<T?> GetAsync<T>(string url)
     {
-        var request = await CreateRequestAsync(HttpMethod.Get, url);
+        // During SSR prerender localStorage is inaccessible → token is null.
+        // Return default so the page renders an empty state instead of calling
+        // NavigateTo("/login") which would redirect before the circuit connects.
+        var token = await _tokenService.GetAccessTokenAsync();
+        if (string.IsNullOrEmpty(token)) return default;
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await _http.SendAsync(request);
 
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)

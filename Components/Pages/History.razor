@@ -1,9 +1,9 @@
-@page "/history"
+﻿@page "/history"
 @layout DashboardLayout
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode InteractiveServer
 @inject ApiClient Api
 
-<PageTitle>History — TruvoID</PageTitle>
+<PageTitle>History â€” TruvoID</PageTitle>
 
 <div class="px-margin-mobile md:px-margin-desktop py-8 md:py-12 flex-1 flex flex-col gap-section-gap">
 
@@ -206,11 +206,11 @@
                                             @tx.Type
                                         </span>
                                     </td>
-                                    <td class="py-4 px-6 font-body-sm text-[14px] text-deep-navy">@(tx.Description ?? "—")</td>
+                                    <td class="py-4 px-6 font-body-sm text-[14px] text-deep-navy">@(tx.Description ?? "â€”")</td>
                                     <td class="py-4 px-6 text-right font-label-md text-[12px] @(tx.Type == WalletTransactionType.Credit ? "text-green-700" : "text-error")">
-                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-")₦@tx.Amount.ToString("N2")
+                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-")â‚¦@tx.Amount.ToString("N2")
                                     </td>
-                                    <td class="py-4 px-6 text-right font-label-md text-[12px] text-deep-navy">₦@tx.BalanceAfter.ToString("N2")</td>
+                                    <td class="py-4 px-6 text-right font-label-md text-[12px] text-deep-navy">â‚¦@tx.BalanceAfter.ToString("N2")</td>
                                 </tr>
                             }
                         }
