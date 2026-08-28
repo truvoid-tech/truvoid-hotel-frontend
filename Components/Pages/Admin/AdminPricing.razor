@@ -233,8 +233,10 @@
     private decimal _phoneCharge = 50;
     private decimal _phoneCost = 20;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
         try
         {
             var pricing = await Api.GetAsync<List<PricingDto>>("/v1/admin/pricing");
@@ -267,6 +269,7 @@
         finally
         {
             _loading = false;
+            StateHasChanged();
         }
     }
 

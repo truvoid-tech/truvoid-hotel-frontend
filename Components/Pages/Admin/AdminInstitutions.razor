@@ -131,8 +131,10 @@
     private bool _loading = true;
     private List<AdminInstitutionDto> _institutions = [];
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
         try
         {
             var result = await Api.GetAsync<List<AdminInstitutionDto>>("/v1/admin/institutions");
@@ -146,6 +148,7 @@
         finally
         {
             _loading = false;
+            StateHasChanged();
         }
     }
 

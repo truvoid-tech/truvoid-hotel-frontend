@@ -161,8 +161,10 @@
     private bool _loading = true;
     private AdminFinancialsDto? _financials;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
         try
         {
             _financials = await Api.GetAsync<AdminFinancialsDto>("/v1/admin/financials");
@@ -174,6 +176,7 @@
         finally
         {
             _loading = false;
+            StateHasChanged();
         }
     }
 

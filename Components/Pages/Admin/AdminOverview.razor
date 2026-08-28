@@ -240,8 +240,10 @@
     private bool _loading = true;
     private string? _error;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
         try
         {
             _overview = await Api.GetAsync<AdminOverviewDto>("/v1/admin/overview");
@@ -253,6 +255,7 @@
         finally
         {
             _loading = false;
+            StateHasChanged();
         }
     }
 }
