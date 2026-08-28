@@ -1,5 +1,8 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject TokenService TokenService
+@inject TruvoIDAuthStateProvider AuthState
+@rendermode InteractiveServer
 
 <div class="bg-background text-on-surface font-body-md min-h-screen flex flex-col md:flex-row antialiased selection:bg-deep-navy selection:text-paper-white">
 
@@ -67,8 +70,8 @@
             </a>
         </div>
 
-        <!-- Bottom: Admin user -->
-        <div class="px-6 py-5 mt-auto border-t border-white/10">
+        <!-- Bottom: Admin user + Logout -->
+        <div class="px-6 py-4 mt-auto border-t border-white/10 flex flex-col gap-3">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-warm-gold/20 border border-warm-gold/40 flex items-center justify-center shrink-0">
                     <span class="material-symbols-outlined text-warm-gold text-[16px]">person</span>
@@ -78,6 +81,10 @@
                     <span class="text-[10px] text-paper-white/40 mt-0.5">Platform Operations</span>
                 </div>
             </div>
+            <button @onclick="HandleLogout" class="w-full flex items-center justify-center gap-2 py-2.5 border border-white/20 rounded text-on-primary/60 hover:text-paper-white hover:bg-white/10 transition-colors font-label-sm text-label-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined text-[16px]">logout</span>
+                Sign Out
+            </button>
         </div>
     </nav>
 
@@ -169,5 +176,12 @@
             if (path.StartsWith("/admin/api-audit")) return "API Audit";
             return "Admin";
         }
+    }
+
+    private async Task HandleLogout()
+    {
+        await TokenService.ClearTokensAsync();
+        AuthState.NotifyAuthenticationStateChanged();
+        NavigationManager.NavigateTo("/login", forceLoad: true);
     }
 }
