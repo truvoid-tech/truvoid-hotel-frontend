@@ -80,16 +80,47 @@
                             </InputSelect>
                         </div>
 
-                        <!-- CAC Certificate Upload (UI only for now) -->
+                        <!-- CAC Certificate Upload -->
                         <div class="md:col-span-2 flex flex-col gap-2 mt-2">
                             <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest flex items-center justify-between">
                                 CAC Certificate of Incorporation
-                                <span class="text-outline text-xs normal-case tracking-normal">*Optional for now</span>
+                                <span class="text-outline text-xs normal-case tracking-normal">PDF, PNG or JPG · Max 10 MB</span>
                             </label>
-                            <div class="border-2 border-dashed border-outline-variant/60 rounded-lg p-10 flex flex-col items-center justify-center bg-surface-container-lowest hover:bg-surface-container-low transition-colors duration-300">
-                                <span class="material-symbols-outlined text-outline text-2xl mb-2">cloud_upload</span>
-                                <span class="font-body-sm text-body-sm text-on-surface text-center font-medium">Certificate upload coming soon</span>
-                            </div>
+
+                            @if (!string.IsNullOrEmpty(_model.CacCertificateUrl))
+                            {
+                                <div class="flex items-center gap-3 p-4 bg-[#e6f4ea] border border-[#ceead6] rounded-lg">
+                                    <span class="material-symbols-outlined text-[#137333] text-[22px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-label-md text-label-md text-[#137333]">Certificate uploaded</p>
+                                        <p class="font-body-sm text-[11px] text-slate-gray truncate">@_uploadedFileName</p>
+                                    </div>
+                                    <button type="button" @onclick="ClearUpload" class="text-slate-gray hover:text-on-surface transition-colors">
+                                        <span class="material-symbols-outlined text-[18px]">close</span>
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <label class="border-2 border-dashed @(_uploadError != null ? "border-red-300 bg-red-50" : "border-outline-variant/60 bg-surface-container-lowest hover:bg-surface-container-low") rounded-lg p-10 flex flex-col items-center justify-center transition-colors duration-300 @(_uploading ? "cursor-wait" : "cursor-pointer")">
+                                    @if (_uploading)
+                                    {
+                                        <div class="w-7 h-7 border-2 border-deep-navy border-t-transparent rounded-full animate-spin mb-3"></div>
+                                        <span class="font-body-sm text-body-sm text-on-surface font-medium">Uploading...</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="material-symbols-outlined text-outline text-2xl mb-2">cloud_upload</span>
+                                        <span class="font-body-sm text-body-sm text-on-surface text-center font-medium">Click to upload CAC Certificate</span>
+                                        <span class="font-label-sm text-[11px] text-slate-gray mt-1">PDF, PNG or JPG</span>
+                                    }
+                                    <InputFile OnChange="HandleFileUpload" class="hidden" accept=".pdf,.png,.jpg,.jpeg" disabled="@_uploading" />
+                                </label>
+                                @if (_uploadError != null)
+                                {
+                                    <p class="font-label-sm text-[11px] text-red-600 mt-1">@_uploadError</p>
+                                }
+                            }
                         </div>
 
                         <!-- Business Address -->
@@ -148,6 +179,45 @@
     private BusinessModel _model = new();
     private bool _isLoading;
     private string? _errorMessage;
+    private bool _uploading;
+    private string? _uploadError;
+    private string? _uploadedFileName;
+
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file.Size > 10 * 1024 * 1024)
+        {
+            _uploadError = "File must be under 10 MB.";
+            return;
+        }
+
+        _uploading = true;
+        _uploadError = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await Api.UploadFileAsync<UploadDocumentResponse>("/v1/onboarding/upload-document", file);
+            _model.CacCertificateUrl = result?.Url ?? string.Empty;
+            _uploadedFileName = file.Name;
+        }
+        catch
+        {
+            _uploadError = "Upload failed. Please try again.";
+        }
+        finally
+        {
+            _uploading = false;
+        }
+    }
+
+    private void ClearUpload()
+    {
+        _model.CacCertificateUrl = string.Empty;
+        _uploadedFileName = null;
+        _uploadError = null;
+    }
 
     private async Task HandleSubmit()
     {
@@ -184,5 +254,6 @@
         public string Address { get; set; } = string.Empty;
         public string ExpectedMonthlyVolume { get; set; } = string.Empty;
         public string PrimaryUseCase { get; set; } = string.Empty;
+        public string CacCertificateUrl { get; set; } = string.Empty;
     }
 }

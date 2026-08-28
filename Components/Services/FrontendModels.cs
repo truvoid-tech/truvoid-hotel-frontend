@@ -134,6 +134,29 @@ public class CallHistoryResponse
     public DateTime CreatedAt { get; set; }
 }
 
+// ── Document Upload ──────────────────────────────────────────────────────────
+
+public class UploadDocumentResponse
+{
+    public string Url { get; set; } = string.Empty;
+    public string PublicId { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+}
+
+// ── Institution Profile ──────────────────────────────────────────────────────
+
+public class InstitutionProfileResponse
+{
+    public string Name { get; set; } = string.Empty;
+    public string Status { get; set; } = "Pending"; // Pending, Active, Suspended
+    public bool OnboardingComplete { get; set; }
+    public decimal WalletBalance { get; set; }
+    public int ApiCallsMtd { get; set; }
+    public decimal SpentThisMonth { get; set; }
+    public int SuccessfulCallsMtd { get; set; }
+    public int FailedCallsMtd { get; set; }
+}
+
 // ── Wallet Top-Up ────────────────────────────────────────────────────────────
 
 public class TopupInitiateResponse

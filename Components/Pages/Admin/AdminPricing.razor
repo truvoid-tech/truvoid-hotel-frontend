@@ -45,13 +45,13 @@
                 </div>
                 <div class="p-6 flex flex-col gap-5">
                     <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
                         <input @bind="_ninCharge" type="number" min="1" step="1"
                                class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
                         <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution's wallet is debited</p>
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (&#8358;)</label>
                         <input @bind="_ninCost" type="number" min="1" step="1"
                                class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
                         <p class="font-label-sm text-[10px] text-slate-gray mt-1">What TruvoID pays NIMC</p>
@@ -60,7 +60,7 @@
                         <div class="flex items-center justify-between mb-1">
                             <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin per Call</span>
                             <span class="font-label-md text-label-md @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
-                                ₦@((_ninCharge - _ninCost)).ToString("N2")
+                                &#8358;@((_ninCharge - _ninCost)).ToString("N2")
                             </span>
                         </div>
                         <div class="flex items-center justify-between">
@@ -89,13 +89,13 @@
                 </div>
                 <div class="p-6 flex flex-col gap-5">
                     <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
                         <input @bind="_bvnCharge" type="number" min="1" step="1"
                                class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
                         <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution's wallet is debited</p>
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (&#8358;)</label>
                         <input @bind="_bvnCost" type="number" min="1" step="1"
                                class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
                         <p class="font-label-sm text-[10px] text-slate-gray mt-1">What TruvoID pays NIMC</p>
@@ -104,7 +104,7 @@
                         <div class="flex items-center justify-between mb-1">
                             <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin per Call</span>
                             <span class="font-label-md text-label-md @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
-                                ₦@((_bvnCharge - _bvnCost)).ToString("N2")
+                                &#8358;@((_bvnCharge - _bvnCost)).ToString("N2")
                             </span>
                         </div>
                         <div class="flex items-center justify-between">
@@ -133,13 +133,13 @@
                 </div>
                 <div class="p-6 flex flex-col gap-5">
                     <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
                         <input @bind="_phoneCharge" type="number" min="1" step="1"
                                class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
                         <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution's wallet is debited</p>
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (₦)</label>
+                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (&#8358;)</label>
                         <input @bind="_phoneCost" type="number" min="1" step="1"
                                class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
                         <p class="font-label-sm text-[10px] text-slate-gray mt-1">What TruvoID pays NIMC</p>
@@ -148,7 +148,7 @@
                         <div class="flex items-center justify-between mb-1">
                             <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin per Call</span>
                             <span class="font-label-md text-label-md @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
-                                ₦@((_phoneCharge - _phoneCost)).ToString("N2")
+                                &#8358;@((_phoneCharge - _phoneCost)).ToString("N2")
                             </span>
                         </div>
                         <div class="flex items-center justify-between">
@@ -193,23 +193,23 @@
                     <tbody>
                         <tr class="border-t border-outline-variant">
                             <td class="px-4 py-3 font-label-md text-label-md text-on-surface">NIN</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">₦@_ninCharge.ToString("N2")</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">₦@_ninCost.ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-md text-label-md @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">₦@((_ninCharge - _ninCost)).ToString("N2")</td>
+                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_ninCharge.ToString("N2")</td>
+                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_ninCost.ToString("N2")</td>
+                            <td class="px-4 py-3 font-label-md text-label-md @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">&#8358;@((_ninCharge - _ninCost)).ToString("N2")</td>
                             <td class="px-4 py-3 font-label-sm text-label-sm @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">@(_ninCharge > 0 ? Math.Round((_ninCharge - _ninCost) / _ninCharge * 100, 1) : 0)%</td>
                         </tr>
                         <tr class="border-t border-outline-variant">
                             <td class="px-4 py-3 font-label-md text-label-md text-on-surface">BVN</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">₦@_bvnCharge.ToString("N2")</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">₦@_bvnCost.ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-md text-label-md @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">₦@((_bvnCharge - _bvnCost)).ToString("N2")</td>
+                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_bvnCharge.ToString("N2")</td>
+                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_bvnCost.ToString("N2")</td>
+                            <td class="px-4 py-3 font-label-md text-label-md @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">&#8358;@((_bvnCharge - _bvnCost)).ToString("N2")</td>
                             <td class="px-4 py-3 font-label-sm text-label-sm @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">@(_bvnCharge > 0 ? Math.Round((_bvnCharge - _bvnCost) / _bvnCharge * 100, 1) : 0)%</td>
                         </tr>
                         <tr class="border-t border-outline-variant">
                             <td class="px-4 py-3 font-label-md text-label-md text-on-surface">Phone</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">₦@_phoneCharge.ToString("N2")</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">₦@_phoneCost.ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-md text-label-md @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">₦@((_phoneCharge - _phoneCost)).ToString("N2")</td>
+                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_phoneCharge.ToString("N2")</td>
+                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_phoneCost.ToString("N2")</td>
+                            <td class="px-4 py-3 font-label-md text-label-md @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">&#8358;@((_phoneCharge - _phoneCost)).ToString("N2")</td>
                             <td class="px-4 py-3 font-label-sm text-label-sm @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">@(_phoneCharge > 0 ? Math.Round((_phoneCharge - _phoneCost) / _phoneCharge * 100, 1) : 0)%</td>
                         </tr>
                     </tbody>

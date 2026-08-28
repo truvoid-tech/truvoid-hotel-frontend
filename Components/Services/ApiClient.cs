@@ -104,6 +104,24 @@ public class ApiClient
         return await _http.SendAsync(request);
     }
 
+    public async Task<T?> UploadFileAsync<T>(string url, Microsoft.AspNetCore.Components.Forms.IBrowserFile file, string fieldName = "file")
+    {
+        var token = await _tokenService.GetAccessTokenAsync();
+        var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+        var fileContent = new StreamContent(stream);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        var content = new MultipartFormDataContent();
+        content.Add(fileContent, fieldName, file.Name);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+        if (!string.IsNullOrEmpty(token))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await _http.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
+    }
+
     public async Task PutAsync(string url, object body)
     {
         var request = await CreateRequestAsync(HttpMethod.Put, url, body);

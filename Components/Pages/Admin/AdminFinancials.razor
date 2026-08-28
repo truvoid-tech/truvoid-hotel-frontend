@@ -38,17 +38,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
             <div class="bg-paper-white border-t-[3px] border-t-warm-gold border-x border-b border-outline-variant rounded shadow-sm p-5">
                 <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider mb-2">Gross Revenue</p>
-                <p class="font-display-lg text-display-lg text-primary font-bold">₦@_financials.GrossRevenue.ToString("N0")</p>
+                <p class="font-display-lg text-display-lg text-primary font-bold">&#8358;@_financials.GrossRevenue.ToString("N0")</p>
                 <p class="font-body-sm text-[11px] text-slate-gray mt-1">@_financials.TotalCalls.ToString("N0") calls</p>
             </div>
             <div class="bg-paper-white border-t-[3px] border-t-error border-x border-b border-outline-variant rounded shadow-sm p-5">
                 <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider mb-2">NIMC Payouts</p>
-                <p class="font-display-lg text-display-lg text-error font-bold">₦@_financials.NimcPayouts.ToString("N0")</p>
+                <p class="font-display-lg text-display-lg text-error font-bold">&#8358;@_financials.NimcPayouts.ToString("N0")</p>
                 <p class="font-body-sm text-[11px] text-slate-gray mt-1">API call costs</p>
             </div>
             <div class="bg-paper-white border-t-[3px] border-t-deep-navy border-x border-b border-outline-variant rounded shadow-sm p-5">
                 <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider mb-2">Net Profit</p>
-                <p class="font-display-lg text-display-lg text-primary font-bold">₦@_financials.NetProfit.ToString("N0")</p>
+                <p class="font-display-lg text-display-lg text-primary font-bold">&#8358;@_financials.NetProfit.ToString("N0")</p>
                 <p class="font-body-sm text-[11px] text-[#137333] mt-1">@_financials.MarginPct% margin</p>
             </div>
         </div>
@@ -80,7 +80,7 @@
                                     <p class="font-label-md text-label-md text-on-surface">@topup.Institution</p>
                                     <p class="font-body-sm text-[11px] text-slate-gray">@topup.Email</p>
                                 </td>
-                                <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">₦@topup.Amount.ToString("N0")</td>
+                                <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">&#8358;@topup.Amount.ToString("N0")</td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface font-mono">@topup.Reference</td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@topup.Submitted</td>
                                 <td class="px-6 py-4">
@@ -144,7 +144,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 font-label-md text-label-md @(tx.Amount > 0 ? "text-[#137333]" : "text-error")">
-                                    @(tx.Amount > 0 ? "+" : "")₦@Math.Abs(tx.Amount).ToString("N2")
+                                    @(tx.Amount > 0 ? "+" : "")&#8358;@Math.Abs(tx.Amount).ToString("N2")
                                 </td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@tx.Date</td>
                             </tr>

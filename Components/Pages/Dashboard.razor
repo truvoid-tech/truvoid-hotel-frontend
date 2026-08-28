@@ -1,9 +1,36 @@
 @page "/dashboard"
 @namespace TruvoID.Components.DashboardPage
 @layout DashboardLayout
+@rendermode InteractiveServer
+@inject ApiClient Api
+@inject NavigationManager Nav
 
 <AuthGuard />
 <PageTitle>TruvoID — Dashboard</PageTitle>
+
+@if (_profileLoaded && _profile?.Status == "Pending")
+{
+    <div class="flex-1 flex items-center justify-center p-8">
+        <div class="max-w-md w-full bg-paper-white border border-outline-variant rounded shadow-sm overflow-hidden text-center">
+            <div class="h-1 w-full bg-warm-gold"></div>
+            <div class="p-8 flex flex-col items-center gap-5">
+                <div class="w-16 h-16 rounded-full bg-[#fef7e0] border border-[#fde083] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[#b06000] text-[32px]" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+                </div>
+                <div>
+                    <h2 class="font-headline-md text-headline-md text-on-surface mb-2">Awaiting Approval</h2>
+                    <p class="font-body-sm text-body-sm text-slate-gray">Your account is under review by the TruvoID team. You'll receive an email once approved.</p>
+                </div>
+                <a href="/pending-approval" class="flex items-center gap-2 bg-deep-navy text-paper-white font-label-md text-label-md uppercase px-6 py-3 rounded hover:bg-ink transition-colors">
+                    View Status
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
 
 <div class="px-margin-mobile md:px-margin-desktop py-8 md:py-12 flex-1 flex flex-col gap-section-gap">
 
@@ -16,7 +43,7 @@
                 <div>
                     <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider mb-2">Available Balance</p>
                     <div class="flex items-end gap-2">
-                        <span class="font-display-lg text-display-lg text-primary font-bold leading-none">₦84,500</span>
+                        <span class="font-display-lg text-display-lg text-primary font-bold leading-none">&#8358;84,500</span>
                         <span class="font-body-sm text-body-sm text-slate-gray mb-1">.00</span>
                     </div>
                     <p class="font-body-sm text-body-sm text-slate-gray mt-2">Estimated capacity: <span class="font-semibold text-on-surface">~1,690 verifications</span></p>
@@ -158,3 +185,29 @@
         </div>
     </div>
 </div>
+
+} @* end else (institution active) *@
+
+@code {
+    private InstitutionProfileResponse? _profile;
+    private bool _profileLoaded;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            _profile = await Api.GetAsync<InstitutionProfileResponse>("/v1/institution/profile");
+        }
+        catch
+        {
+            // If the endpoint isn't available yet, fall through to show dashboard
+        }
+        finally
+        {
+            _profileLoaded = true;
+            StateHasChanged();
+        }
+    }
+}

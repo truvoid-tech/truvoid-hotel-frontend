@@ -45,7 +45,7 @@
                     <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Revenue (MTD)</span>
                     <span class="material-symbols-outlined text-warm-gold text-[20px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
                 </div>
-                <p class="font-display-lg text-display-lg text-primary font-bold leading-none">₦@_overview.RevenueMtd.ToString("N0")</p>
+                <p class="font-display-lg text-display-lg text-primary font-bold leading-none">&#8358;@_overview.RevenueMtd.ToString("N0")</p>
                 <div class="flex items-center gap-1 text-[#34a853]">
                     <span class="material-symbols-outlined text-[13px]">arrow_upward</span>
                     <span class="font-label-sm text-label-sm">+@_overview.RevenueGrowthPct% vs last month</span>
@@ -58,7 +58,7 @@
                     <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">NIMC Costs (MTD)</span>
                     <span class="material-symbols-outlined text-error text-[20px]" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
                 </div>
-                <p class="font-display-lg text-display-lg text-error font-bold leading-none">₦@_overview.CostsMtd.ToString("N0")</p>
+                <p class="font-display-lg text-display-lg text-error font-bold leading-none">&#8358;@_overview.CostsMtd.ToString("N0")</p>
                 <div class="flex items-center gap-1 text-slate-gray">
                     <span class="material-symbols-outlined text-[13px]">remove</span>
                     <span class="font-label-sm text-label-sm">API call payouts</span>
@@ -71,7 +71,7 @@
                     <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Net Margin</span>
                     <span class="material-symbols-outlined text-deep-navy text-[20px]" style="font-variation-settings: 'FILL' 1;">savings</span>
                 </div>
-                <p class="font-display-lg text-display-lg text-primary font-bold leading-none">₦@_overview.NetMargin.ToString("N0")</p>
+                <p class="font-display-lg text-display-lg text-primary font-bold leading-none">&#8358;@_overview.NetMargin.ToString("N0")</p>
                 <div class="flex items-center gap-1 text-[#34a853]">
                     <span class="material-symbols-outlined text-[13px]">percent</span>
                     <span class="font-label-sm text-label-sm">@(_overview.RevenueMtd > 0 ? Math.Round(_overview.NetMargin / _overview.RevenueMtd * 100, 1) : 0)% margin</span>
@@ -109,7 +109,7 @@
                 </div>
                 <div>
                     <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Total Wallet Balances</p>
-                    <p class="font-headline-lg text-headline-lg text-on-surface font-bold">₦@_overview.TotalWalletBalances.ToString("N0")</p>
+                    <p class="font-headline-lg text-headline-lg text-on-surface font-bold">&#8358;@_overview.TotalWalletBalances.ToString("N0")</p>
                 </div>
             </div>
             <div class="bg-paper-white border border-outline-variant rounded p-5 flex items-center gap-4">
@@ -151,7 +151,7 @@
                                         <p class="font-body-sm text-[10px] text-slate-gray">@inst.Email</p>
                                     </td>
                                     <td class="px-6 py-4 font-body-md text-body-md text-on-surface">@inst.CallsMtd.ToString("N0")</td>
-                                    <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">₦@inst.RevenueMtd.ToString("N0")</td>
+                                    <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">&#8358;@inst.RevenueMtd.ToString("N0")</td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center gap-1 rounded px-2 py-1 font-label-sm text-label-sm @(inst.Active ? "bg-[#e6f4ea] text-[#137333] border border-[#ceead6]" : "bg-surface-container border border-outline-variant text-slate-gray")">
                                             @(inst.Active ? "Active" : "Inactive")
