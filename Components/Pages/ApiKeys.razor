@@ -1,9 +1,9 @@
-﻿﻿@page "/api-keys"
+﻿@page "/api-keys"
 @rendermode InteractiveServer
 @layout DashboardLayout
 @inject ApiClient Api
 
-<PageTitle>TruvoID ” API Keys</PageTitle>
+<PageTitle>TruvoID " API Keys</PageTitle>
 
 <div class="px-margin-mobile md:px-margin-desktop py-8 md:py-12 flex-1">
 
@@ -75,7 +75,7 @@
                                         <code class="font-label-md text-label-md text-deep-navy bg-surface-container-low px-2 py-1 rounded">@(key.KeyPrefix)...</code>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">@(key.Description ?? “-”)</td>
+                                <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">@(key.Description ?? "-")</td>
                                 <td class="px-6 py-4">
                                     @if (key.Status == ApiKeyStatus.Active)
                                     {
@@ -126,7 +126,7 @@
 
             @if (_createdKeyRaw is not null)
             {
-                <!-- Key revealed ” show once -->
+                <!-- Key revealed " show once -->
                 <div class="bg-[#fef7e0] border border-[#fde083] rounded-lg p-4 mb-4 flex items-start gap-3">
                     <span class="material-symbols-outlined text-[#b06000] mt-0.5">warning</span>
                     <div>
@@ -139,7 +139,7 @@
                 </div>
                 <button @onclick="CloseCreateModal"
                         class="w-full bg-deep-navy text-paper-white font-label-md text-label-md uppercase py-3 rounded hover:opacity-90 transition-opacity">
-                    Done ” I've Saved This Key
+                    Done " I've Saved This Key
                 </button>
             }
             else

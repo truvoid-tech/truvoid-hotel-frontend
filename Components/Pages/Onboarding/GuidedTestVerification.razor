@@ -1,10 +1,10 @@
-﻿﻿@page "/onboarding/verify"
+﻿@page "/onboarding/verify"
 @layout OnboardingLayout
 @rendermode InteractiveServer
 @inject ApiClient Api
 @inject NavigationManager Nav
 
-<PageTitle>TruvoID ” Run Your First Verification</PageTitle>
+<PageTitle>TruvoID " Run Your First Verification</PageTitle>
 
 <div class="min-h-screen flex flex-col justify-center items-center p-4 md:p-8 bg-background text-on-background">
     <div class="w-full max-w-4xl mx-auto flex flex-col items-center">
@@ -150,7 +150,7 @@
         }
         catch
         {
-            // Sandbox fallback ” show mock data
+            // Sandbox fallback " show mock data
             _result = new VerificationResponse
             {
                 Status = "match",
