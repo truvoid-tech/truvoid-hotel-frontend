@@ -45,7 +45,7 @@ public class VerificationData
 
 public class ApiKeyResponse
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public string KeyPrefix { get; set; } = string.Empty;
     public string? Description { get; set; }
     public ApiKeyStatus Status { get; set; }
@@ -70,7 +70,7 @@ public class WalletBalanceResponse
 
 public class WalletTransactionResponse
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public decimal BalanceAfter { get; set; }
     public WalletTransactionType Type { get; set; }
@@ -90,7 +90,7 @@ public enum UserStatus { Active, PendingInvitation, Suspended }
 
 public class StaffInviteResponse
 {
-    public Guid UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public UserRole Role { get; set; }
@@ -124,10 +124,10 @@ public enum VerificationStatus { Match, NoMatch, Error, Pending }
 
 public class CallHistoryResponse
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public string CallId { get; set; } = string.Empty;
     public string? IdempotencyKey { get; set; }
-    public Guid? ApiKeyId { get; set; }
+    public string? ApiKeyId { get; set; }
     public VerificationType Type { get; set; }
     public VerificationStatus Status { get; set; }
     public decimal Cost { get; set; }
@@ -163,3 +163,4 @@ public class InstitutionSetupRequest
     public string ContactEmail { get; set; } = string.Empty;
     public string ContactPhone { get; set; } = string.Empty;
 }
+

@@ -20,7 +20,7 @@ public record AdminOverviewDto
 
 public record InstitutionVolumeDto
 {
-    public Guid Id { get; init; }
+    public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = "";
     public string Email { get; init; } = "";
     public int CallsMtd { get; init; }
@@ -38,7 +38,7 @@ public record CallBreakdownDto
 
 public record AdminInstitutionDto
 {
-    public Guid Id { get; init; }
+    public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = "";
     public string Email { get; init; } = "";
     public string Status { get; init; } = "Active"; // Active, Pending, Suspended
@@ -50,7 +50,7 @@ public record AdminInstitutionDto
 
 public record AdminTopUpDto
 {
-    public Guid Id { get; init; }
+    public string Id { get; init; } = string.Empty;
     public string Institution { get; init; } = "";
     public string Email { get; init; } = "";
     public decimal Amount { get; init; }
@@ -92,6 +92,20 @@ public record UpdatePricingRequest
 {
     public decimal InstitutionCharge { get; set; }
     public decimal NimcCost { get; set; }
+}
+
+// ──────────────────────────── API Audit ─────────────────────────────────
+
+public class AdminApiKeyDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string InstitutionName { get; set; } = string.Empty;
+    public string KeyPrefix { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public int CallCount { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? LastUsedAt { get; set; }
 }
 
 // ──────────────────────────── Paginated List ────────────────────────────

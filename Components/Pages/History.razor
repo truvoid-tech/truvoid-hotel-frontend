@@ -107,7 +107,7 @@
                                     <td class="py-4 px-6">
                                         <span class="font-label-md text-[12px] text-slate-gray bg-surface px-2 py-1 rounded border border-surface-variant">@(call.IdempotencyKey?.Length > 12 ? call.IdempotencyKey[..12] + "..." : call.Id.ToString()[..8])</span>
                                     </td>
-                                    <td class="py-4 px-6 font-body-sm text-[14px] text-deep-navy">@(call.ApiKeyId.HasValue ? "System API" : "Dashboard User")</td>
+                                    <td class="py-4 px-6 font-body-sm text-[14px] text-deep-navy">@(!string.IsNullOrEmpty(call.ApiKeyId) ? "System API" : "Dashboard User")</td>
                                     <td class="py-4 px-6 text-right">
                                         @if (call.Status == VerificationStatus.Match)
                                         {
