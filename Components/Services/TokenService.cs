@@ -73,4 +73,34 @@ public class TokenService
         var expiry = await GetTokenExpiryAsync();
         return expiry is null || expiry <= DateTime.UtcNow;
     }
+
+    /// <summary>
+    /// Extract the "role" claim from the JWT access token.
+    /// </summary>
+    public string? GetRoleFromToken(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return null;
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length < 2) return null;
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+            var bytes = Convert.FromBase64String(payload);
+            var json = System.Text.Encoding.UTF8.GetString(bytes);
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("role", out var roleProp))
+            {
+                return roleProp.ValueKind == System.Text.Json.JsonValueKind.String
+                    ? roleProp.GetString()
+                    : roleProp.GetRawText();
+            }
+        }
+        catch { }
+        return null;
+    }
 }

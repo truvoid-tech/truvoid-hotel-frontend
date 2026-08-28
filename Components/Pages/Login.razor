@@ -151,7 +151,17 @@
 
             await TokenService.SetTokensAsync(response.AccessToken, response.RefreshToken, response.ExpiresAt);
             AuthState.NotifyAuthenticationStateChanged();
-            Nav.NavigateTo("/dashboard");
+
+            // Route based on role claim in JWT
+            var role = TokenService.GetRoleFromToken(response.AccessToken);
+            if (role == "PlatformAdmin")
+            {
+                Nav.NavigateTo("/admin");
+            }
+            else
+            {
+                Nav.NavigateTo("/dashboard");
+            }
         }
         catch (HttpRequestException)
         {
