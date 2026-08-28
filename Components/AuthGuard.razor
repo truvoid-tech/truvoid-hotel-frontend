@@ -1,0 +1,13 @@
+@rendermode InteractiveServer
+@inject TokenService TokenService
+@inject NavigationManager Nav
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var token = await TokenService.GetAccessTokenAsync();
+        if (string.IsNullOrEmpty(token))
+            Nav.NavigateTo("/login", forceLoad: false);
+    }
+}
