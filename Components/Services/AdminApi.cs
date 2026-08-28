@@ -119,21 +119,8 @@ public record PaginatedList<T>
     public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
 }
 
-// ─── NIMC Config DTOs ───
-public record NimcConfigDto
+// ─── NIMC Config DTO ───
+public record NimcEnvironmentDto
 {
-    public string Environment { get; init; } = "sandbox";
-    public string ApiBaseUrl { get; init; } = string.Empty;
-    public string ApiKey { get; init; } = string.Empty;
-    public string? PartnerId { get; init; }
-    public bool IsActive { get; init; }
-}
-
-public record UpdateNimcConfigRequest
-{
-    public string ApiBaseUrl { get; init; } = string.Empty;
-    public string ApiKey { get; init; } = string.Empty;
-    public string? PartnerId { get; init; }
-    public string? SecretKey { get; init; }
-    public bool IsActive { get; init; }
+    public string ActiveEnvironment { get; init; } = "sandbox";
 }

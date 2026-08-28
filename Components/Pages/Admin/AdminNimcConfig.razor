@@ -10,18 +10,15 @@
 <div class="px-margin-mobile md:px-margin-desktop py-8 md:py-10 flex-1 flex flex-col gap-section-gap">
 
     <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="font-headline-lg text-headline-lg text-on-surface">NIMC API Configuration</h1>
-            <p class="font-body-sm text-body-sm text-slate-gray mt-1">Manage NIMC partner API credentials for Live and Sandbox environments</p>
-        </div>
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">NIMC API Configuration</h1>
+        <p class="font-body-sm text-body-sm text-slate-gray mt-1">Switch between Live and Sandbox verification environments</p>
     </div>
 
     @if (_loading)
     {
         <div class="flex items-center justify-center py-20">
             <div class="w-8 h-8 border-2 border-deep-navy border-t-transparent rounded-full animate-spin"></div>
-            <span class="ml-3 font-body-sm text-body-sm text-slate-gray">Loading NIMC configuration...</span>
         </div>
     }
     else if (_error is not null)
@@ -34,193 +31,140 @@
     else
     {
         <!-- Active Environment Banner -->
-        <div class="bg-paper-white border-t-[3px] border-t-warm-gold border-x border-b border-outline-variant rounded shadow-sm p-6">
+        <div class="rounded-xl p-6 @(IsLive ? "bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-200" : "bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200")">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-lg @(GetActiveEnv() == "live" ? "bg-red-50" : "bg-green-50") flex items-center justify-center">
-                        <span class="material-symbols-outlined @(GetActiveEnv() == "live" ? "text-red-600" : "text-green-600")" style="font-variation-settings: 'FILL' 1;">@(GetActiveEnv() == "live" ? "cell_tower" : "science")</span>
+                    <div class="w-14 h-14 rounded-xl @(IsLive ? "bg-red-500" : "bg-green-500") flex items-center justify-center shadow-lg">
+                        <span class="material-symbols-outlined text-white text-[28px]" style="font-variation-settings: 'FILL' 1;">@(IsLive ? "cell_tower" : "science")</span>
                     </div>
                     <div>
                         <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Active Environment</p>
-                        <p class="font-headline-md text-headline-md text-on-surface font-bold">@(GetActiveEnv() == "live" ? "Production (Live)" : "Sandbox (Testing)")</p>
+                        <p class="font-headline-lg text-headline-lg font-bold @(IsLive ? "text-red-700" : "text-green-700")">@(IsLive ? "Live (Production)" : "Sandbox (Testing)")</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full @(GetActiveEnv() == "live" ? "bg-red-500" : "bg-green-500") animate-pulse"></span>
-                    <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Active</span>
+                    <span class="w-3 h-3 rounded-full @(IsLive ? "bg-red-500" : "bg-green-500") animate-pulse"></span>
+                    <span class="font-label-sm text-label-sm uppercase tracking-wider @(IsLive ? "text-red-600" : "text-green-600")">Active</span>
                 </div>
             </div>
         </div>
 
-        <!-- Environment Tabs -->
-        <div class="flex border-b border-outline-variant">
-            <button @onclick='() => SelectEnv("sandbox")' class="flex-1 sm:flex-none px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 transition-colors @(_selectedEnv == "sandbox" ? "border-green-500 text-green-700 bg-green-50" : "border-transparent text-slate-gray hover:text-on-surface")">
-                <span class="material-symbols-outlined text-[18px] align-middle mr-2">science</span>
-                Sandbox
-            </button>
-            <button @onclick='() => SelectEnv("live")' class="flex-1 sm:flex-none px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 transition-colors @(_selectedEnv == "live" ? "border-red-500 text-red-700 bg-red-50" : "border-transparent text-slate-gray hover:text-on-surface")">
-                <span class="material-symbols-outlined text-[18px] align-middle mr-2">cell_tower</span>
-                Live (Production)
-            </button>
-        </div>
-
-        <!-- Config Form -->
-        <div class="bg-paper-white border border-outline-variant rounded shadow-sm p-6 md:p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="font-headline-md text-headline-md text-on-surface">@(_selectedEnv == "live" ? "Production" : "Sandbox") API Credentials</h2>
-                @if (_configs.FirstOrDefault(c => c.Environment == _selectedEnv)?.IsActive == true)
-                {
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-green-50 text-green-700 border border-green-200 font-label-sm text-label-sm uppercase">
-                        <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                        Active
-                    </span>
-                }
-                else
-                {
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface-container text-slate-gray border border-outline-variant font-label-sm text-label-sm uppercase">
-                        Inactive
-                    </span>
-                }
-            </div>
-
-            <div class="space-y-6">
-                <!-- API Base URL -->
-                <div>
-                    <label class="block font-label-sm text-label-sm text-deep-navy mb-2 uppercase">API Base URL</label>
-                    <input @bind="_formApiBaseUrl" type="url"
-                           class="w-full bg-surface-container-low border border-outline-variant rounded px-4 py-3 font-body-md text-body-md text-on-surface focus:border-deep-navy focus:ring-1 focus:ring-deep-navy outline-none transition-all placeholder:text-slate-gray"
-                           placeholder="https://api.nimc-partner.com/v1" />
-                    <p class="mt-1.5 font-label-sm text-label-sm text-slate-gray">Base URL of the NIMC partner verification API</p>
-                </div>
-
-                <!-- API Key -->
-                <div>
-                    <label class="block font-label-sm text-label-sm text-deep-navy mb-2 uppercase">API Key</label>
-                    <div class="relative">
-                        <input @bind="_formApiKey" type="@(_showApiKey ? "text" : "password")"
-                               class="w-full bg-surface-container-low border border-outline-variant rounded px-4 py-3 pr-12 font-body-md text-body-md text-on-surface focus:border-deep-navy focus:ring-1 focus:ring-deep-navy outline-none transition-all placeholder:text-slate-gray"
-                               placeholder="sk_live_xxxxxxxxxxxx" />
-                        <button @onclick="() => _showApiKey = !_showApiKey" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-gray hover:text-deep-navy transition-colors">
-                            <span class="material-symbols-outlined text-[20px]">@(_showApiKey ? "visibility_off" : "visibility")</span>
-                        </button>
+        <!-- Toggle Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <!-- Sandbox Card -->
+            <button @onclick="SwitchToSandbox"
+                    class="text-left p-6 rounded-xl border-2 transition-all duration-200 @(IsLive ? "border-outline-variant bg-paper-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer" : "border-green-500 bg-green-50 shadow-md ring-2 ring-green-200")">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg @(IsLive ? "bg-surface-container" : "bg-green-500") flex items-center justify-center">
+                            <span class="material-symbols-outlined @(IsLive ? "text-slate-gray" : "text-white")" style="font-variation-settings: 'FILL' 1;">science</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md @(IsLive ? "text-on-surface" : "text-green-700")">Sandbox</h3>
                     </div>
-                    <p class="mt-1.5 font-label-sm text-label-sm text-slate-gray">Primary API key for NIMC partner authentication</p>
-                </div>
-
-                <!-- Secret Key -->
-                <div>
-                    <label class="block font-label-sm text-label-sm text-deep-navy mb-2 uppercase">Secret Key</label>
-                    <div class="relative">
-                        <input @bind="_formSecretKey" type="@(_showSecret ? "text" : "password")"
-                               class="w-full bg-surface-container-low border border-outline-variant rounded px-4 py-3 pr-12 font-body-md text-body-md text-on-surface focus:border-deep-navy focus:ring-1 focus:ring-deep-navy outline-none transition-all placeholder:text-slate-gray"
-                               placeholder="••••••••••••" />
-                        <button @onclick="() => _showSecret = !_showSecret" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-gray hover:text-deep-navy transition-colors">
-                            <span class="material-symbols-outlined text-[20px]">@(_showSecret ? "visibility_off" : "visibility")</span>
-                        </button>
-                    </div>
-                    <p class="mt-1.5 font-label-sm text-label-sm text-slate-gray">Optional secondary secret for HMAC signing</p>
-                </div>
-
-                <!-- Partner ID -->
-                <div>
-                    <label class="block font-label-sm text-label-sm text-deep-navy mb-2 uppercase">Partner ID</label>
-                    <input @bind="_formPartnerId" type="text"
-                           class="w-full bg-surface-container-low border border-outline-variant rounded px-4 py-3 font-body-md text-body-md text-on-surface focus:border-deep-navy focus:ring-1 focus:ring-deep-navy outline-none transition-all placeholder:text-slate-gray"
-                           placeholder="PARTNER-001" />
-                    <p class="mt-1.5 font-label-sm text-label-sm text-slate-gray">Your assigned partner identifier</p>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-outline-variant">
-                    <button @onclick="SaveConfig" disabled="@_saving"
-                            class="w-full sm:w-auto px-8 py-3 bg-deep-navy text-paper-white font-label-md text-label-md uppercase rounded hover:bg-primary transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                        @if (_saving)
-                        {
-                            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        }
-                        <span>@(_configs.Any(c => c.Environment == _selectedEnv) ? "Update" : "Save") Configuration</span>
-                    </button>
-
-                    @if (_configs.FirstOrDefault(c => c.Environment == _selectedEnv)?.IsActive != true && _configs.Any(c => c.Environment == _selectedEnv))
+                    @if (!IsLive)
                     {
-                        <button @onclick="ActivateEnv" disabled="@_saving"
-                                class="w-full sm:w-auto px-8 py-3 bg-green-600 text-paper-white font-label-md text-label-md uppercase rounded hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                            <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                            <span>Switch to @(_selectedEnv == "live" ? "Live" : "Sandbox")</span>
-                        </button>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-500 text-white font-label-sm text-[10px] uppercase">Active</span>
                     }
                 </div>
-
-                @if (!string.IsNullOrEmpty(_successMsg))
-                {
-                    <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded text-green-700">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                        <span class="font-body-sm text-body-sm">@_successMsg</span>
-                    </div>
-                }
-
-                @if (!string.IsNullOrEmpty(_formError))
-                {
-                    <div class="flex items-center gap-3 p-4 bg-[#fce8e6] border border-[#f5c6c4] rounded text-[#c5221f]">
-                        <span class="material-symbols-outlined text-[18px]">error</span>
-                        <span class="font-body-sm text-body-sm">@_formError</span>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <!-- Security Notice -->
-        <div class="bg-surface-container-low border border-outline-variant rounded p-5 flex items-start gap-3">
-            <span class="material-symbols-outlined text-deep-navy mt-0.5">shield</span>
-            <div>
-                <p class="font-body-sm text-body-sm text-on-surface font-medium">Security Notice</p>
-                <p class="font-body-sm text-body-sm text-slate-gray mt-1">
-                    API keys are stored encrypted in MongoDB and never exposed in full via the admin API.
-                    Only masked versions are shown. Ensure your NIMC partner agreement permits sandbox testing
-                    before switching environments in production.
+                <p class="font-body-sm text-body-sm @(IsLive ? "text-slate-gray" : "text-green-600")">
+                    Safe testing environment with mock verification responses. Use during development and integration testing.
                 </p>
+                <div class="mt-4 flex items-center gap-2 text-sm @(IsLive ? "text-slate-gray" : "text-green-600")">
+                    <span class="material-symbols-outlined text-[16px]">info</span>
+                    <span class="font-label-sm text-label-sm">No real NIMC charges</span>
+                </div>
+            </button>
+
+            <!-- Live Card -->
+            <button @onclick="SwitchToLive"
+                    class="text-left p-6 rounded-xl border-2 transition-all duration-200 @(IsLive ? "border-red-500 bg-red-50 shadow-md ring-2 ring-red-200" : "border-outline-variant bg-paper-white hover:border-red-300 hover:bg-red-50/50 cursor-pointer")">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg @(IsLive ? "bg-red-500" : "bg-surface-container") flex items-center justify-center">
+                            <span class="material-symbols-outlined @(IsLive ? "text-white" : "text-slate-gray")" style="font-variation-settings: 'FILL' 1;">cell_tower</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md @(IsLive ? "text-red-700" : "text-on-surface")">Live (Production)</h3>
+                    </div>
+                    @if (IsLive)
+                    {
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-500 text-white font-label-sm text-[10px] uppercase">Active</span>
+                    }
+                </div>
+                <p class="font-body-sm text-body-sm @(IsLive ? "text-red-600" : "text-slate-gray")">
+                    Production environment connected to real NIMC partner API. Every verification call charges your wallet.
+                </p>
+                <div class="mt-4 flex items-center gap-2 text-sm @(IsLive ? "text-red-600" : "text-slate-gray")">
+                    <span class="material-symbols-outlined text-[16px]">warning</span>
+                    <span class="font-label-sm text-label-sm">Real charges apply</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- Env Vars Reference -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6">
+            <h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">key</span>
+                Railway Environment Variables
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        <span class="font-label-sm text-label-sm text-slate-gray uppercase">Sandbox Keys</span>
+                    </div>
+                    <code class="font-body-sm text-body-sm text-on-surface block space-y-1">
+                        <div>NIMC_SANDBOX_API_URL</div>
+                        <div>NIMC_SANDBOX_API_KEY</div>
+                        <div>NIMC_SANDBOX_PARTNER_ID</div>
+                        <div>NIMC_SANDBOX_SECRET_KEY</div>
+                    </code>
+                </div>
+                <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        <span class="font-label-sm text-label-sm text-slate-gray uppercase">Live Keys</span>
+                    </div>
+                    <code class="font-body-sm text-body-sm text-on-surface block space-y-1">
+                        <div>NIMC_LIVE_API_URL</div>
+                        <div>NIMC_LIVE_API_KEY</div>
+                        <div>NIMC_LIVE_PARTNER_ID</div>
+                        <div>NIMC_LIVE_SECRET_KEY</div>
+                    </code>
+                </div>
             </div>
         </div>
+
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="flex items-center gap-3 p-4 @(IsLive ? "bg-green-50 border border-green-200 text-green-700" : "bg-green-50 border border-green-200 text-green-700") rounded">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                <span class="font-body-sm text-body-sm">@_message</span>
+            </div>
+        }
     }
 </div>
 
 @code {
-    private List<NimcConfigDto> _configs = [];
+    private string _activeEnv = "sandbox";
     private bool _loading = true;
     private string? _error;
-    private string _selectedEnv = "sandbox";
-    private bool _saving;
-    private string? _successMsg;
-    private string? _formError;
-    private bool _showApiKey;
-    private bool _showSecret;
+    private string? _message;
 
-    // Form fields
-    private string _formApiBaseUrl = "";
-    private string _formApiKey = "";
-    private string? _formSecretKey;
-    private string? _formPartnerId;
+    private bool IsLive => _activeEnv == "live";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-        await LoadConfigs();
-    }
-
-    private async Task LoadConfigs()
-    {
-        _loading = true;
-        _error = null;
-        StateHasChanged();
 
         try
         {
-            _configs = await Api.GetAsync<List<NimcConfigDto>>("/v1/admin/nimc") ?? [];
-            LoadFormForEnv();
+            var result = await Api.GetAsync<NimcEnvironmentDto>("/v1/admin/nimc");
+            if (result is not null)
+                _activeEnv = result.ActiveEnvironment;
         }
         catch (Exception ex)
         {
-            _error = $"Failed to load NIMC config: {ex.Message}";
+            _error = $"Failed to load config: {ex.Message}";
         }
         finally
         {
@@ -229,91 +173,22 @@
         }
     }
 
-    private void SelectEnv(string env)
-    {
-        _selectedEnv = env;
-        _successMsg = null;
-        _formError = null;
-        LoadFormForEnv();
-    }
+    private Task SwitchToSandbox() => SwitchToEnv("sandbox");
+    private Task SwitchToLive() => SwitchToEnv("live");
 
-    private void LoadFormForEnv()
+    private async Task SwitchToEnv(string env)
     {
-        var existing = _configs.FirstOrDefault(c => c.Environment == _selectedEnv);
-        if (existing is not null)
-        {
-            _formApiBaseUrl = existing.ApiBaseUrl;
-            _formApiKey = ""; // Don't pre-fill — user must re-enter to update
-            _formSecretKey = null;
-            _formPartnerId = existing.PartnerId;
-        }
-        else
-        {
-            _formApiBaseUrl = "";
-            _formApiKey = "";
-            _formSecretKey = null;
-            _formPartnerId = null;
-        }
-    }
-
-    private string GetActiveEnv()
-    {
-        return _configs.FirstOrDefault(c => c.IsActive)?.Environment ?? "sandbox";
-    }
-
-    private async Task SaveConfig()
-    {
-        _saving = true;
-        _successMsg = null;
-        _formError = null;
-        StateHasChanged();
+        if (env == _activeEnv) return;
 
         try
         {
-            var request = new UpdateNimcConfigRequest
-            {
-                ApiBaseUrl = _formApiBaseUrl,
-                ApiKey = _formApiKey,
-                PartnerId = _formPartnerId,
-                SecretKey = string.IsNullOrEmpty(_formSecretKey) ? null : _formSecretKey
-            };
-
-            await Api.PutAsync($"/v1/admin/nimc/{_selectedEnv}", request);
-            _successMsg = $"NIMC {_selectedEnv} configuration saved successfully.";
-            await LoadConfigs();
+            await Api.PutAsync("/v1/admin/nimc", new { environment = env });
+            _activeEnv = env;
+            _message = $"Switched to {(env == "live" ? "Live (Production)" : "Sandbox (Testing)")} environment.";
         }
         catch (Exception ex)
         {
-            _formError = $"Failed to save: {ex.Message}";
-        }
-        finally
-        {
-            _saving = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task ActivateEnv()
-    {
-        _saving = true;
-        _successMsg = null;
-        _formError = null;
-        StateHasChanged();
-
-        try
-        {
-            await Api.PostAsync($"/v1/admin/nimc/{_selectedEnv}/activate", new { });
-            _successMsg = $"Switched to {_selectedEnv} environment.";
-            await LoadConfigs();
-        }
-        catch (Exception ex)
-        {
-            _formError = $"Failed to activate: {ex.Message}";
-        }
-        finally
-        {
-            _saving = false;
-            StateHasChanged();
+            _error = $"Failed to switch: {ex.Message}";
         }
     }
 }
