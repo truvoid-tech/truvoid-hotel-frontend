@@ -53,13 +53,13 @@
                 <span class="material-symbols-outlined" style="@(ActiveFill("/admin/pricing"))">price_change</span>
                 <span class="font-label-md text-label-md uppercase tracking-wider">Pricing</span>
             </a>
-            <a href="/admin/api-audit" class="@(SideNavClass("/admin/api-audit"))">
-                <span class="material-symbols-outlined" style="@(ActiveFill("/admin/api-audit"))">key</span>
-                <span class="font-label-md text-label-md uppercase tracking-wider">API Audit</span>
+            <a href="/admin/admins" class="@(SideNavClass("/admin/admins"))">
+                <span class="material-symbols-outlined" style="@(ActiveFill("/admin/admins"))">admin_panel_settings</span>
+                <span class="font-label-md text-label-md uppercase tracking-wider">Admins</span>
             </a>
-            <a href="/admin/nimc" class="@(SideNavClass("/admin/nimc"))">
-                <span class="material-symbols-outlined" style="@(ActiveFill("/admin/nimc"))">vpn_key</span>
-                <span class="font-label-md text-label-md uppercase tracking-wider">NIMC Config</span>
+            <a href="/admin/audit" class="@(SideNavClass("/admin/audit"))">
+                <span class="material-symbols-outlined" style="@(ActiveFill("/admin/audit"))">history</span>
+                <span class="font-label-md text-label-md uppercase tracking-wider">Activity Log</span>
             </a>
 
             <!-- Divider -->
@@ -171,7 +171,8 @@
             if (path.StartsWith("/admin/institutions")) return "Institutions";
             if (path.StartsWith("/admin/financials")) return "Financials";
             if (path.StartsWith("/admin/pricing")) return "Pricing";
-            if (path.StartsWith("/admin/api-audit")) return "API Audit";
+            if (path.StartsWith("/admin/admins")) return "Admins";
+            if (path.StartsWith("/admin/audit")) return "Activity Log";
             return "Admin";
         }
     }

@@ -124,3 +124,34 @@ public record NimcEnvironmentDto
 {
     public string ActiveEnvironment { get; init; } = "sandbox";
 }
+
+// ─── Admin Management DTOs ───
+public record AdminUserDto
+{
+    public string UserId { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string FullName { get; init; } = string.Empty;
+    public string Role { get; init; } = string.Empty;
+    public bool IsActive { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public DateTime? LastLoginAt { get; init; }
+}
+
+public record InviteAdminRequest
+{
+    public string Email { get; init; } = string.Empty;
+    public string FullName { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
+}
+
+// ─── Audit Log DTOs ───
+public record AuditLogEntryDto
+{
+    public string Id { get; init; } = string.Empty;
+    public string? ActorEmail { get; init; }
+    public string ActorType { get; init; } = string.Empty;
+    public string Action { get; init; } = string.Empty;
+    public string Entity { get; init; } = string.Empty;
+    public string? DetailsJson { get; init; }
+    public DateTime CreatedAt { get; init; }
+}
