@@ -1,8 +1,5 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject TokenService TokenService
-@inject TruvoIDAuthStateProvider AuthState
-@rendermode InteractiveServer
 
 
 <div class="bg-background text-on-surface font-body-md min-h-screen flex flex-col md:flex-row antialiased selection:bg-deep-navy selection:text-paper-white">
@@ -64,10 +61,7 @@
                 <span class="material-symbols-outlined text-[18px]">add</span>
                 Replenish Balance
             </a>
-            <button @onclick="HandleLogout" class="w-full border border-white/20 text-on-primary/70 font-label-md text-label-md uppercase tracking-wider py-3 rounded hover:bg-white/10 hover:text-paper-white transition-colors flex justify-center items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">logout</span>
-                Sign Out
-            </button>
+            <LogoutButton CssClass="w-full border border-white/20 text-on-primary/70 font-label-md text-label-md uppercase tracking-wider py-3 rounded hover:bg-white/10 hover:text-paper-white transition-colors flex justify-center items-center gap-2" />
         </div>
     </nav>
 
@@ -151,10 +145,4 @@
         ? "flex items-center gap-3 px-4 py-3 text-warm-gold font-bold bg-white/5 border-l-4 border-warm-gold rounded-r-DEFAULT cursor-pointer active:scale-95 hover:bg-white/10 transition-all duration-200"
         : "flex items-center gap-3 px-4 py-3 text-on-primary/70 hover:text-on-primary cursor-pointer active:scale-95 hover:bg-white/10 transition-all duration-200 border-l-4 border-transparent rounded-r-DEFAULT";
 
-    private async Task HandleLogout()
-    {
-        await TokenService.ClearTokensAsync();
-        AuthState.NotifyAuthenticationStateChanged();
-        NavigationManager.NavigateTo("/login", forceLoad: true);
-    }
 }
