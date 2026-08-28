@@ -1,10 +1,9 @@
 ﻿@page "/onboarding"
 @layout OnboardingLayout
 @rendermode InteractiveServer
+@using System.Net.Http.Json
 @inject ApiClient Api
 @inject TokenService TokenService
-@inject TruvoIDAuthStateProvider AuthState
-@inject NavigationManager Nav
 @inject TruvoIDAuthStateProvider AuthState
 @inject NavigationManager Nav
 
@@ -21,7 +20,10 @@
 
         <!-- Editorial content " bottom left -->
         <div class="relative z-10 max-w-md">
-            <h1 class="font-headline-md text-headline-md font-bold text-paper-white tracking-tight mb-4">TruvoID</h1>
+            <div class="flex items-center gap-3 mb-4">
+                <img src="/assets/images/TruvoID-logo.png" alt="TruvoID" class="w-10 h-10 rounded-lg object-contain" />
+                <h1 class="font-headline-md text-headline-md font-bold text-paper-white tracking-tight">TruvoID</h1>
+            </div>
             <p class="font-headline-lg text-headline-lg text-paper-white mb-4 leading-snug">Institutional Identity Infrastructure.</p>
             <p class="font-body-lg text-body-lg text-paper-white/70">A definitive platform for secure, compliance-ready enterprise identity verification and management.</p>
         </div>
@@ -31,7 +33,10 @@
     <div class="flex-1 flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop h-full overflow-y-auto bg-background">
         <div class="w-full max-w-md">
             <div class="md:hidden mb-12">
-                <h1 class="font-headline-md text-headline-md font-bold text-deep-navy tracking-tight">TruvoID</h1>
+                <div class="flex items-center gap-2">
+                    <img src="/assets/images/TruvoID-logo.png" alt="TruvoID" class="w-9 h-9 rounded-lg object-contain" />
+                    <h1 class="font-headline-md text-headline-md font-bold text-deep-navy tracking-tight">TruvoID</h1>
+                </div>
             </div>
 
             <div class="mb-10">
@@ -156,6 +161,11 @@
     private bool _isLoading;
     private string? _errorMessage;
 
+    private static readonly System.Text.Json.JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private async Task HandleSignup()
     {
         _isLoading = true;
@@ -163,24 +173,37 @@
 
         try
         {
-            var response = await Api.PostAsync<RegisterResponse>("/v1/auth/register", _model);
+            var raw = await Api.PostRawAsync("/v1/auth/register", _model);
 
-            if (response is not null)
+            if (raw.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
-                await TokenService.SetTokensAsync(response.AccessToken, response.RefreshToken, response.ExpiresAt);
-                AuthState.NotifyAuthenticationStateChanged();
-                Nav.NavigateTo("/onboarding/business");
+                _errorMessage = "An institution with this email already exists.";
+                return;
             }
-            else
+
+            if (raw.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var msg = await ApiClient.GetErrorMessageAsync(raw);
+                _errorMessage = msg;
+                return;
+            }
+
+            raw.EnsureSuccessStatusCode();
+
+            var response = await raw.Content.ReadFromJsonAsync<RegisterResponse>(_jsonOptions);
+            if (response is null || string.IsNullOrEmpty(response.AccessToken))
             {
                 _errorMessage = "Registration failed. Please try again.";
+                return;
             }
+
+            await TokenService.SetTokensAsync(response.AccessToken, response.RefreshToken, response.ExpiresAt);
+            AuthState.NotifyAuthenticationStateChanged();
+            Nav.NavigateTo("/onboarding/business");
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            _errorMessage = ex.StatusCode == System.Net.HttpStatusCode.Conflict
-                ? "An institution with this email already exists."
-                : "Unable to connect. Please try again.";
+            _errorMessage = "Unable to connect. Please try again.";
         }
         catch (Exception)
         {
