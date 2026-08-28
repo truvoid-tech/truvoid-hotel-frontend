@@ -12,6 +12,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
 
 // Blazor auth services
 builder.Services.AddScoped<TokenService>();
