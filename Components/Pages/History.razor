@@ -1,6 +1,6 @@
 @page "/history"
 @layout DashboardLayout
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject ApiClient Api
 
 <PageTitle>History — TruvoID</PageTitle>

@@ -1,6 +1,6 @@
 @page "/onboarding/compliance"
 @layout OnboardingLayout
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject ApiClient Api
 @inject NavigationManager Nav
 

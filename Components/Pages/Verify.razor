@@ -1,5 +1,5 @@
 @page "/verify"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @layout DashboardLayout
 @inject ApiClient Api
 

@@ -1,6 +1,6 @@
 @page "/onboarding"
 @layout OnboardingLayout
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject ApiClient Api
 @inject TokenService TokenService
 @inject TruvoIDAuthStateProvider AuthState

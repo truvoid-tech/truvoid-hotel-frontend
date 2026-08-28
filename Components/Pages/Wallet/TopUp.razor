@@ -1,6 +1,6 @@
 @page "/wallet/topup"
 @layout DashboardLayout
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject ApiClient Api
 
 <PageTitle>Add Funds — TruvoID</PageTitle>

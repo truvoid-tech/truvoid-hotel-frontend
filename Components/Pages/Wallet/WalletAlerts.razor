@@ -1,6 +1,6 @@
 @page "/wallet/alerts"
 @layout DashboardLayout
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject ApiClient Api
 
 <PageTitle>Wallet Alerts — TruvoID</PageTitle>
