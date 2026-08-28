@@ -100,37 +100,21 @@
             </button>
         </div>
 
-        <!-- Env Vars Reference -->
+        <!-- API Info -->
         <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6">
             <h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">key</span>
-                Railway Environment Variables
+                IDaccess Partner API
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                        <span class="font-label-sm text-label-sm text-slate-gray uppercase">Sandbox Keys</span>
-                    </div>
-                    <code class="font-body-sm text-body-sm text-on-surface block space-y-1">
-                        <div>NIMC_SANDBOX_API_URL</div>
-                        <div>NIMC_SANDBOX_API_KEY</div>
-                        <div>NIMC_SANDBOX_PARTNER_ID</div>
-                        <div>NIMC_SANDBOX_SECRET_KEY</div>
-                    </code>
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-deep-navy"></span>
+                    <span class="font-label-sm text-label-sm text-slate-gray uppercase">Fixed Configuration</span>
                 </div>
-                <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                        <span class="font-label-sm text-label-sm text-slate-gray uppercase">Live Keys</span>
-                    </div>
-                    <code class="font-body-sm text-body-sm text-on-surface block space-y-1">
-                        <div>NIMC_LIVE_API_URL</div>
-                        <div>NIMC_LIVE_API_KEY</div>
-                        <div>NIMC_LIVE_PARTNER_ID</div>
-                        <div>NIMC_LIVE_SECRET_KEY</div>
-                    </code>
-                </div>
+                <code class="font-body-sm text-body-sm text-on-surface block space-y-1">
+                    <div><span class="text-slate-gray">Base URL:</span> https://api.idaccess.info/v1</div>
+                    <div><span class="text-slate-gray">API Key:</span> Set via NIMC_API_KEY env var</div>
+                </code>
             </div>
         </div>
 
