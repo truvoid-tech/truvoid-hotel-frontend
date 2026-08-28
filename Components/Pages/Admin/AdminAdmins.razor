@@ -37,6 +37,7 @@
                         <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Role</th>
                         <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Status</th>
                         <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Last Login</th>
+                        <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant">
@@ -65,6 +66,20 @@
                             </td>
                             <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">
                                 @(admin.LastLoginAt?.ToString("dd MMM yyyy, HH:mm") ?? "Never")
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (admin.Role != "PlatformAdmin")
+                                {
+                                    <select class="border border-outline-variant rounded px-2 py-1 font-label-sm text-label-sm text-on-surface bg-paper-white focus:border-deep-navy outline-none cursor-pointer"
+                                            @onchange="@(e => OnRoleChanged(admin.UserId, e))">
+                                        <option value="Admin" selected="@(admin.Role == "Admin")">Admin</option>
+                                        <option value="Staff" selected="@(admin.Role == "Staff")">Staff</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <span class="font-label-sm text-label-sm text-slate-gray">Protected</span>
+                                }
                             </td>
                         </tr>
                     }
@@ -123,6 +138,7 @@
     private string _inviteName = "";
     private string _inviteEmail = "";
     private string _invitePassword = "";
+    private string? _roleError;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -181,6 +197,23 @@
         finally
         {
             _inviting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnRoleChanged(string userId, ChangeEventArgs e)
+    {
+        var newRole = e.Value?.ToString() ?? "";
+        if (string.IsNullOrEmpty(newRole)) return;
+
+        try
+        {
+            await Api.PutAsync($"/v1/admin/admins/{userId}/role", new UpdateRoleRequest { Role = newRole });
+            await LoadAdmins();
+        }
+        catch (Exception ex)
+        {
+            _roleError = ex.Message;
             StateHasChanged();
         }
     }
