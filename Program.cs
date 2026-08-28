@@ -20,9 +20,9 @@ builder.Services.AddScoped<TruvoIDAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<TruvoIDAuthStateProvider>());
 
 // HttpClient points to the separate BE API service
-var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL")
-    ?? builder.Configuration["ApiBaseUrl"]
-    ?? "http://localhost:5000";
+var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
+if (string.IsNullOrWhiteSpace(apiBaseUrl))
+    apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5000";
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<ApiClient>();
 
