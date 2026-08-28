@@ -1,0 +1,192 @@
+@page "/admin/institutions"
+@layout AdminLayout
+@namespace TruvoID.Components.AdminPages
+@inject ApiClient Api
+
+<AdminAuthGuard />
+<PageTitle>TruvoID Admin — Institutions</PageTitle>
+
+<div class="px-margin-mobile md:px-margin-desktop py-8 md:py-10 flex-1 flex flex-col gap-section-gap">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="font-headline-lg text-headline-lg text-on-surface">Institutions</h1>
+            <p class="font-body-sm text-body-sm text-slate-gray mt-1">All registered institutions on the TruvoID platform</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px] pointer-events-none">search</span>
+                <input @bind="_search" @bind:event="oninput" type="text" placeholder="Search institutions..."
+                       class="w-full md:w-56 border border-outline-variant rounded bg-paper-white pl-9 pr-4 py-2 font-body-sm text-body-sm text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none" />
+            </div>
+            <select @bind="_statusFilter"
+                    class="border border-outline-variant rounded bg-paper-white px-3 py-2 font-body-sm text-body-sm text-on-surface focus:ring-1 focus:ring-deep-navy outline-none">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Suspended">Suspended</option>
+            </select>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="flex items-center justify-center py-20">
+            <div class="w-8 h-8 border-2 border-deep-navy border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    }
+    else
+    {
+        <!-- Stats strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-gutter">
+            <div class="bg-paper-white border border-outline-variant rounded p-4 text-center">
+                <p class="font-display-lg text-display-lg text-primary font-bold">@_institutions.Count</p>
+                <p class="font-label-sm text-label-sm text-slate-gray uppercase mt-1">Total</p>
+            </div>
+            <div class="bg-paper-white border border-outline-variant rounded p-4 text-center">
+                <p class="font-display-lg text-display-lg font-bold" style="color:#137333">@_institutions.Count(i => i.Status == "Active")</p>
+                <p class="font-label-sm text-label-sm text-slate-gray uppercase mt-1">Active</p>
+            </div>
+            <div class="bg-paper-white border border-outline-variant rounded p-4 text-center">
+                <p class="font-display-lg text-display-lg text-[#b06000] font-bold">@_institutions.Count(i => i.Status == "Pending")</p>
+                <p class="font-label-sm text-label-sm text-slate-gray uppercase mt-1">Pending</p>
+            </div>
+            <div class="bg-paper-white border border-outline-variant rounded p-4 text-center">
+                <p class="font-display-lg text-display-lg text-error font-bold">@_institutions.Count(i => i.Status == "Suspended")</p>
+                <p class="font-label-sm text-label-sm text-slate-gray uppercase mt-1">Suspended</p>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-paper-white border border-outline-variant rounded overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[780px]">
+                    <thead class="bg-surface-container-low border-b border-outline-variant">
+                        <tr>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Institution</th>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Status</th>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Wallet Balance</th>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">API Calls (MTD)</th>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Joined</th>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var inst in FilteredInstitutions)
+                        {
+                            <tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
+                                <td class="px-6 py-4">
+                                    <p class="font-label-md text-label-md text-on-surface">@inst.Name</p>
+                                    <p class="font-body-sm text-[11px] text-slate-gray">@inst.Email</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-label-sm text-label-sm @StatusClass(inst.Status)">
+                                        <span class="w-1.5 h-1.5 rounded-full @StatusDot(inst.Status)"></span>
+                                        @inst.Status
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">₦@inst.WalletBalance.ToString("N0")</td>
+                                <td class="px-6 py-4 font-body-md text-body-md text-on-surface">@inst.ApiCallsMtd.ToString("N0")</td>
+                                <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@inst.JoinedDate.ToString("dd MMM yyyy")</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <button class="font-label-sm text-label-sm text-deep-navy hover:underline uppercase">View</button>
+                                        @if (inst.Status == "Active")
+                                        {
+                                            <span class="text-outline-variant">·</span>
+                                            <button @onclick="() => SuspendInstitution(inst)" class="font-label-sm text-label-sm text-error hover:underline uppercase">Suspend</button>
+                                        }
+                                        else if (inst.Status == "Suspended")
+                                        {
+                                            <span class="text-outline-variant">·</span>
+                                            <button @onclick="() => ReactivateInstitution(inst)" class="font-label-sm text-label-sm text-[#137333] hover:underline uppercase">Reactivate</button>
+                                        }
+                                        else if (inst.Status == "Pending")
+                                        {
+                                            <span class="text-outline-variant">·</span>
+                                            <button @onclick="() => ApproveInstitution(inst)" class="font-label-sm text-label-sm text-[#137333] hover:underline uppercase">Approve</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!FilteredInstitutions.Any())
+            {
+                <div class="py-16 text-center">
+                    <span class="material-symbols-outlined text-[40px] text-outline-variant mb-3 block">search_off</span>
+                    <p class="font-body-md text-body-md text-slate-gray">No institutions match your filters.</p>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string _search = string.Empty;
+    private string _statusFilter = string.Empty;
+    private bool _loading = true;
+    private List<AdminInstitutionDto> _institutions = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await Api.GetAsync<List<AdminInstitutionDto>>("/v1/admin/institutions");
+            _institutions = result ?? [];
+        }
+        catch
+        {
+            // Fallback to empty list on error
+            _institutions = [];
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private IEnumerable<AdminInstitutionDto> FilteredInstitutions => _institutions
+        .Where(i => (string.IsNullOrEmpty(_search) || i.Name.Contains(_search, StringComparison.OrdinalIgnoreCase) || i.Email.Contains(_search, StringComparison.OrdinalIgnoreCase))
+                 && (string.IsNullOrEmpty(_statusFilter) || i.Status.Equals(_statusFilter, StringComparison.OrdinalIgnoreCase)));
+
+    private static string StatusClass(string status) => status switch
+    {
+        "Active"    => "bg-[#e6f4ea] text-[#137333] border border-[#ceead6]",
+        "Pending"   => "bg-[#fef7e0] text-[#b06000] border border-[#fde083]",
+        "Suspended" => "bg-[#fce8e6] text-[#c5221f] border border-[#f5c6c4]",
+        _           => "bg-surface-container text-slate-gray border border-outline-variant"
+    };
+
+    private static string StatusDot(string status) => status switch
+    {
+        "Active"    => "bg-[#34a853]",
+        "Pending"   => "bg-[#f9ab00]",
+        "Suspended" => "bg-[#ea4335]",
+        _           => "bg-slate-gray"
+    };
+
+    private async Task SuspendInstitution(AdminInstitutionDto inst)
+    {
+        await Api.PostAsync($"/v1/admin/institutions/{inst.Id}/suspend", new { });
+        var idx = _institutions.IndexOf(inst);
+        if (idx >= 0) _institutions[idx] = inst with { Status = "Suspended" };
+    }
+
+    private async Task ReactivateInstitution(AdminInstitutionDto inst)
+    {
+        await Api.PostAsync($"/v1/admin/institutions/{inst.Id}/reactivate", new { });
+        var idx = _institutions.IndexOf(inst);
+        if (idx >= 0) _institutions[idx] = inst with { Status = "Active" };
+    }
+
+    private async Task ApproveInstitution(AdminInstitutionDto inst)
+    {
+        await Api.PostAsync($"/v1/admin/institutions/{inst.Id}/approve", new { });
+        var idx = _institutions.IndexOf(inst);
+        if (idx >= 0) _institutions[idx] = inst with { Status = "Active" };
+    }
+}

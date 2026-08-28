@@ -1,0 +1,26 @@
+@rendermode InteractiveServer
+@inject TokenService TokenService
+@inject TruvoIDAuthStateProvider AuthState
+@inject NavigationManager Nav
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var token = await TokenService.GetAccessTokenAsync();
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: false);
+            return;
+        }
+
+        var state = await AuthState.GetAuthenticationStateAsync();
+        var role = state.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+        if (role != "PlatformAdmin")
+        {
+            Nav.NavigateTo("/dashboard", forceLoad: false);
+        }
+    }
+}
