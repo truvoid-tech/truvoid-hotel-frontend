@@ -234,7 +234,7 @@
                         <div class="flex justify-between items-start border-b border-outline-variant pb-4">
                             <div class="flex flex-col gap-1">
                                 <span class="font-label-sm text-label-sm text-outline uppercase">Gender</span>
-                                <span class="font-body-lg text-body-lg text-ink">@(_result.Data.Gender ?? "N/A")</span>
+                                <span class="font-body-lg text-body-lg text-ink">@(FormatGender(_result.Data.Gender))</span>
                             </div>
                         </div>
                         <div class="flex justify-between items-start border-b border-outline-variant pb-4">
@@ -243,12 +243,30 @@
                                 <span class="font-body-lg text-body-lg text-ink">@(_result.Data.PhoneNumber ?? "N/A")</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-start">
+                        <div class="flex justify-between items-start border-b border-outline-variant pb-4">
                             <div class="flex flex-col gap-1">
                                 <span class="font-label-sm text-label-sm text-outline uppercase">Date of Birth</span>
                                 <span class="font-body-lg text-body-lg text-ink">@(_result.Data.DateOfBirth ?? "N/A")</span>
                             </div>
                         </div>
+                        @if (!string.IsNullOrEmpty(_result.Data.StateOfOrigin))
+                        {
+                            <div class="flex justify-between items-start border-b border-outline-variant pb-4">
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-label-sm text-label-sm text-outline uppercase">State of Origin</span>
+                                    <span class="font-body-lg text-body-lg text-ink">@(_result.Data.StateOfOrigin)</span>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(_result.Data.ResidentialAddress))
+                        {
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-label-sm text-label-sm text-outline uppercase">Residential Address</span>
+                                    <span class="font-body-sm text-body-sm text-ink leading-relaxed">@(_result.Data.ResidentialAddress)</span>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -391,4 +409,11 @@
         _result = null;
         _errorMessage = null;
     }
+
+    private static string FormatGender(string? gender) => gender?.ToLowerInvariant() switch
+    {
+        "m" => "Male",
+        "f" => "Female",
+        _ => gender ?? "N/A"
+    };
 }

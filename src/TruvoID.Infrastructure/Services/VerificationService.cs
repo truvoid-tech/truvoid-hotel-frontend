@@ -155,13 +155,20 @@ public class VerificationService : IVerificationService
                     var middleName = identityData.TryGetProperty("middle_name", out var mnProp) ? mnProp.GetString() : null;
                     var lastName = identityData.TryGetProperty("last_name", out var lnProp) ? lnProp.GetString() : null;
                     var fullName = string.Join(" ", new[] { firstName, middleName, lastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
+                    var rawPhoto = identityData.TryGetProperty("photograph", out var phProp) ? phProp.GetString() : null;
+                    // IDaccess returns raw base64 JPEG — prefix it so the browser can render it inline.
+                    var photoDataUrl = string.IsNullOrWhiteSpace(rawPhoto) ? null
+                        : rawPhoto.StartsWith("data:") ? rawPhoto
+                        : $"data:image/jpeg;base64,{rawPhoto}";
                     var matchedData = new
                     {
                         name = string.IsNullOrWhiteSpace(fullName) ? null : fullName,
                         dob = identityData.TryGetProperty("date_of_birth", out var dProp) ? dProp.GetString() : null,
                         phone = identityData.TryGetProperty("phone_number", out var pProp) ? pProp.GetString() : null,
                         gender = identityData.TryGetProperty("gender", out var gProp) ? gProp.GetString() : null,
-                        photo = identityData.TryGetProperty("photograph", out var phProp) ? phProp.GetString() : null
+                        photo = photoDataUrl,
+                        stateOfOrigin = identityData.TryGetProperty("state_of_origin", out var soProp) ? soProp.GetString() : null,
+                        residentialAddress = identityData.TryGetProperty("residential_address", out var raProp) ? raProp.GetString() : null
                     };
                     var callStatus = isMatch ? VerificationStatus.Match : VerificationStatus.NoMatch;
                     var resultUpdate = Builders<VerificationCall>.Update
@@ -286,7 +293,9 @@ public class VerificationService : IVerificationService
                     DateOfBirth = root.TryGetProperty("dob", out var dp) ? dp.GetString() : null,
                     PhoneNumber = root.TryGetProperty("phone", out var pp) ? pp.GetString() : null,
                     Gender = root.TryGetProperty("gender", out var gp) ? gp.GetString() : null,
-                    PhotoUrl = root.TryGetProperty("photo", out var pp2) ? pp2.GetString() : null
+                    PhotoUrl = root.TryGetProperty("photo", out var pp2) ? pp2.GetString() : null,
+                    StateOfOrigin = root.TryGetProperty("stateOfOrigin", out var soProp) ? soProp.GetString() : null,
+                    ResidentialAddress = root.TryGetProperty("residentialAddress", out var raProp) ? raProp.GetString() : null
                 };
             }
             catch { }
