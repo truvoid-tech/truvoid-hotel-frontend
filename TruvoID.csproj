@@ -13,6 +13,12 @@
         <Content Remove="src\**" />
         <EmbeddedResource Remove="src\**" />
         <None Remove="src\**" />
+
+        <!-- tests/ folder is a separate xunit project — exclude from FE compilation -->
+        <Compile Remove="tests\**" />
+        <Content Remove="tests\**" />
+        <EmbeddedResource Remove="tests\**" />
+        <None Remove="tests\**" />
     </ItemGroup>
 
 </Project>
