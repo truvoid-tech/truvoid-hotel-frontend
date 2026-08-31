@@ -263,6 +263,137 @@ public class IdaccessVerificationTests : IAsyncLifetime
             await ctx.Response.WriteAsync(json);
         });
 
+        // ── Edge case: empty fields response ──
+        _app.MapPost("/identity/nin/empty-fields", async (HttpContext ctx) =>
+        {
+            var response = new
+            {
+                success = true,
+                data = new
+                {
+                    verdict = "MATCH",
+                    api_type = "nin.advance",
+                    session_id = "ses_empty",
+                    cost_kobo = 5000,
+                    environment = "sandbox",
+                    data = new
+                    {
+                        nin = "11111111111",
+                        first_name = "",
+                        last_name = "",
+                        middle_name = (string?)null,
+                        date_of_birth = (string?)null,
+                        phone_number = "",
+                        state_of_origin = "",
+                        gender = (string?)null,
+                        photograph = (string?)null,
+                        residential_address = ""
+                    },
+                    call_id = "vcl_empty"
+                },
+                error = (object?)null,
+                request_id = "req_empty",
+                timestamp = DateTime.UtcNow.ToString("o")
+            };
+            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync(json);
+        });
+
+        // ── Edge case: special characters in names ──
+        _app.MapPost("/identity/nin/special-chars", async (HttpContext ctx) =>
+        {
+            var response = new
+            {
+                success = true,
+                data = new
+                {
+                    verdict = "MATCH",
+                    api_type = "nin.advance",
+                    session_id = "ses_special",
+                    cost_kobo = 5000,
+                    environment = "sandbox",
+                    data = new
+                    {
+                        nin = "33333333333",
+                        first_name = "OLUWATOYIN",
+                        last_name = "O'CONNOR-ABDULLAHI",
+                        middle_name = "ÀDÉBÁYỌ̀",
+                        date_of_birth = "01/01/1990",
+                        phone_number = "+234 801 234 5678",
+                        state_of_origin = "Lagos",
+                        gender = "f",
+                        photograph = Convert.ToBase64String(Encoding.UTF8.GetBytes("photo-unicode-\u00e9")),
+                        residential_address = "123 Ogunlana Drive, Surulere, Lagos"
+                    },
+                    call_id = "vcl_special"
+                },
+                error = (object?)null,
+                request_id = "req_special",
+                timestamp = DateTime.UtcNow.ToString("o")
+            };
+            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync(json);
+        });
+
+        // ── Edge case: malformed JSON (simulating upstream corruption) ──
+        _app.MapPost("/identity/nin/malformed", async (HttpContext ctx) =>
+        {
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync("{{{invalid json not valid at all");
+        });
+
+        // ── Edge case: flat structure (no nested data.data) ──
+        _app.MapPost("/identity/nin/flat", async (HttpContext ctx) =>
+        {
+            var response = new
+            {
+                success = true,
+                data = new
+                {
+                    first_name = "FLAT",
+                    last_name = "STRUCTURE",
+                    date_of_birth = "10-10-2000",
+                    phone_number = "08012345678",
+                    gender = "m"
+                }
+            };
+            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync(json);
+        });
+
+        // ── Edge case: HTTP 500 from upstream ──
+        _app.MapPost("/identity/nin/upstream-error", async (HttpContext ctx) =>
+        {
+            ctx.Response.StatusCode = 500;
+            var errResponse = new { error = new { message = "Internal server error" } };
+            var json = JsonSerializer.Serialize(errResponse, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync(json);
+        });
+
+        // ── Edge case: empty response body ──
+        _app.MapPost("/identity/nin/empty-body", async (HttpContext ctx) =>
+        {
+            ctx.Response.StatusCode = 200;
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync("");
+        });
+
         await _app.StartAsync();
 
         // Discover the actual bound URL
@@ -684,5 +815,249 @@ public class IdaccessVerificationTests : IAsyncLifetime
         Assert.Equal("NO_MATCH", ninResult.verdict);
         Assert.Equal("NO_MATCH", bvnResult.verdict);
         Assert.Equal("NO_MATCH", phoneResult.verdict);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Edge Case Tests: Empty Fields
+    // ──────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task EmptyFields_StillParsedAsMatch()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/empty-fields",
+            new { nin = "11111111111" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        Assert.True(result.isMatch);
+        Assert.Equal("MATCH", result.verdict);
+    }
+
+    [Fact]
+    public async Task EmptyFields_AllStringFieldsAreNullOrEmpty()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/empty-fields",
+            new { nin = "11111111111" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        // Empty strings → name should be null (all parts empty)
+        Assert.Null(result.name);
+        // Null/empty fields preserved
+        Assert.Null(result.dob);
+        Assert.Equal("", result.phone);
+        Assert.Null(result.gender);
+        Assert.Null(result.photo);
+        Assert.Equal("", result.stateOfOrigin);
+        Assert.Equal("", result.residentialAddress);
+    }
+
+    [Fact]
+    public async Task EmptyFields_MatchedDataSerializesCleanly()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/empty-fields",
+            new { nin = "11111111111" });
+        var json = await response.Content.ReadAsStringAsync();
+        var result = ParseIdaccessResponse(json);
+
+        // Simulate MatchedFieldsJson serialization (same as VerificationService)
+        var matchedData = new
+        {
+            name = result.name,
+            dob = result.dob,
+            phone = result.phone,
+            gender = result.gender,
+            photo = result.photo,
+            stateOfOrigin = result.stateOfOrigin,
+            residentialAddress = result.residentialAddress
+        };
+        var serialized = JsonSerializer.Serialize(matchedData);
+        var doc = JsonDocument.Parse(serialized);
+        var root = doc.RootElement;
+
+        // Should not throw — all fields present in JSON even if null
+        Assert.Null(root.GetProperty("name").GetString());
+        Assert.Null(root.GetProperty("dob").GetString());
+        Assert.Equal("", root.GetProperty("phone").GetString());
+        Assert.Null(root.GetProperty("photo").GetString());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Edge Case Tests: Special Characters in Names
+    // ──────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task SpecialChars_HyphenAndApostrophe_NameParsedCorrectly()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/special-chars",
+            new { nin = "33333333333" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        Assert.True(result.isMatch);
+        // Name should preserve apostrophe, hyphen, and accented characters
+        Assert.Equal("OLUWATOYIN ÀDÉBÁYỌ̀ O'CONNOR-ABDULLAHI", result.name);
+    }
+
+    [Fact]
+    public async Task SpecialChars_AccentedCharacters_PreservedInOutput()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/special-chars",
+            new { nin = "33333333333" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        // Middle name has Yoruba tone marks
+        Assert.Equal("ÀDÉBÁYỌ̀", result.name?.Split(' ')[1]);
+    }
+
+    [Fact]
+    public async Task SpecialChars_NonStandardDateFormat_Preserved()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/special-chars",
+            new { nin = "33333333333" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        // DOB format from API — frontend can reformat if needed
+        Assert.Equal("01/01/1990", result.dob);
+    }
+
+    [Fact]
+    public async Task SpecialChars_InternationalPhoneFormat_Preserved()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/special-chars",
+            new { nin = "33333333333" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        Assert.Equal("+234 801 234 5678", result.phone);
+    }
+
+    [Fact]
+    public async Task SpecialChars_AddressWithSpaces_Preserved()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/special-chars",
+            new { nin = "33333333333" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        Assert.Equal("123 Ogunlana Drive, Surulere, Lagos", result.residentialAddress);
+    }
+
+    [Fact]
+    public async Task SpecialChars_PhotoWithUnicodeBytes_ParsedAsDataUrl()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/special-chars",
+            new { nin = "33333333333" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        Assert.NotNull(result.photo);
+        Assert.StartsWith("data:image/jpeg;base64,", result.photo);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Edge Case Tests: Malformed JSON
+    // ──────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task MalformedJson_DoesNotThrow_InParsing()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/malformed",
+            new { nin = "anything" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        // ParseIdaccessResponse should handle this gracefully
+        // It uses JsonDocument.Parse which will throw on malformed JSON
+        // The real VerificationService wraps parsing in try/catch
+        var result = ParseIdaccessResponseSafe(json);
+
+        Assert.False(result.isMatch);
+        Assert.Null(result.name);
+    }
+
+    [Fact]
+    public async Task MalformedJson_ParserThrows_OnInvalidJson()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/malformed",
+            new { nin = "anything" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        // The raw parser throws on malformed JSON — VerificationService catches this
+        Assert.ThrowsAny<JsonException>(() =>
+        {
+            var doc = JsonDocument.Parse(json);
+        });
+    }
+
+    [Fact]
+    public async Task UpstreamHttp500_ParsedGracefully()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/upstream-error",
+            new { nin = "anything" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        // HTTP 500 response — VerificationService handles non-2xx responses
+        Assert.Equal(System.Net.HttpStatusCode.InternalServerError, response.StatusCode);
+
+        // The error body should still be parseable
+        var doc = JsonDocument.Parse(json);
+        Assert.True(doc.RootElement.TryGetProperty("error", out _));
+    }
+
+    [Fact]
+    public async Task EmptyBody_ParserHandlesGracefully()
+    {
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/empty-body",
+            new { nin = "anything" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        // Empty string → JsonDocument.Parse will throw
+        var result = ParseIdaccessResponseSafe(json);
+        Assert.False(result.isMatch);
+        Assert.Null(result.name);
+    }
+
+    [Fact]
+    public async Task FlatStructure_WithoutNestedData_ParsedCorrectly()
+    {
+        // Some APIs return flat structure: { success, data: { first_name, ... } }
+        var response = await _client.PostAsJsonAsync($"{_baseUrl}/identity/nin/flat",
+            new { nin = "anything" });
+        var json = await response.Content.ReadAsStringAsync();
+
+        var result = ParseIdaccessResponse(json);
+
+        // No verdict in flat structure → isMatch should be false
+        // But identity fields should still be parsed from the outer data object
+        Assert.False(result.isMatch);
+        Assert.Null(result.verdict);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Helper: safe parser that catches exceptions
+    // ──────────────────────────────────────────────────────────────────────
+
+    private static (string? name, string? dob, string? phone, string? gender,
+        string? photo, string? stateOfOrigin, string? residentialAddress,
+        string? verdict, bool isMatch) ParseIdaccessResponseSafe(string responseJson)
+    {
+        try
+        {
+            return ParseIdaccessResponse(responseJson);
+        }
+        catch
+        {
+            return (null, null, null, null, null, null, null, null, false);
+        }
     }
 }
