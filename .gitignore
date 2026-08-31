@@ -20,3 +20,6 @@ appsettings.*.json
 
 # EF Migrations snapshots (keep migration files)
 *.Designer.cs
+
+# Dev scripts
+tmp/
