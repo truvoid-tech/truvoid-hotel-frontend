@@ -209,9 +209,9 @@
                                     </td>
                                     <td class="py-4 px-6 font-body-sm text-[14px] text-deep-navy">@(tx.Description ?? "-")</td>
                                     <td class="py-4 px-6 text-right font-label-md text-[12px] @(tx.Type == WalletTransactionType.Credit ? "text-green-700" : "text-error")">
-                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-")â‚¦@tx.Amount.ToString("N2")
+                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-")&#8358;@tx.Amount.ToString("N2")
                                     </td>
-                                    <td class="py-4 px-6 text-right font-label-md text-[12px] text-deep-navy">â‚¦@tx.BalanceAfter.ToString("N2")</td>
+                                    <td class="py-4 px-6 text-right font-label-md text-[12px] text-deep-navy">&#8358;@tx.BalanceAfter.ToString("N2")</td>
                                 </tr>
                             }
                         }

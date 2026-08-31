@@ -42,7 +42,7 @@
                     <div class="card-body">
                         <p><strong>Status:</strong> <span class="badge @(_result.Status == "match" ? "bg-success" : _result.Status == "no_match" ? "bg-warning" : "bg-danger")">@_result.Status</span></p>
                         <p><strong>Call ID:</strong> @_result.CallId</p>
-                        <p><strong>Balance After:</strong> â‚¦@_result.WalletBalanceAfter.ToString("N2")</p>
+                        <p><strong>Balance After:</strong> &#8358;@_result.WalletBalanceAfter.ToString("N2")</p>
                         @if (_result.Data is not null)
                         {
                             <hr />

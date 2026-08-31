@@ -16,7 +16,7 @@
             <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
             <div>
                 <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-4">Current Balance</p>
-                <h3 class="font-display-lg text-display-lg text-deep-navy font-bold">â‚¦@(_balance?.Balance.ToString("N2") ?? "0.00")</h3>
+                <h3 class="font-display-lg text-display-lg text-deep-navy font-bold">&#8358;@(_balance?.Balance.ToString("N2") ?? "0.00")</h3>
                 <p class="font-body-sm text-body-sm text-on-surface-variant mt-2 flex items-center gap-2">
                     <span class="material-symbols-outlined text-warm-gold" style="font-size: 16px;">verified</span>
                     Available for immediate verification operations
@@ -39,7 +39,7 @@
             <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 shadow-[0_12px_32px_-4px_rgba(31,56,100,0.05)]">
                 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">This Month</p>
                 <div class="flex justify-between items-end mb-2">
-                    <span class="font-headline-md text-headline-md text-deep-navy">â‚¦@(_monthlySpend.ToString("N2"))</span>
+                    <span class="font-headline-md text-headline-md text-deep-navy">&#8358;@(_monthlySpend.ToString("N2"))</span>
                     <span class="font-body-sm text-body-sm text-on-surface-variant mb-1">spent</span>
                 </div>
                 <div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
@@ -55,9 +55,9 @@
                     <div>
                         <h4 class="font-body-lg text-body-lg text-deep-navy font-semibold">Pricing</h4>
                         <div class="space-y-1 mt-2">
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">NIN: â‚¦100/lookup</p>
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">BVN: â‚¦150/lookup</p>
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">Phone: â‚¦50/lookup</p>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">NIN: &#8358;100/lookup</p>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">BVN: &#8358;150/lookup</p>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">Phone: &#8358;50/lookup</p>
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right font-medium @(tx.Type == WalletTransactionType.Credit ? "text-deep-navy" : "text-on-surface-variant")">
-                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-") â‚¦@tx.Amount.ToString("N2")
+                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-") &#8358;@tx.Amount.ToString("N2")
                                     </td>
                                 </tr>
                             }
