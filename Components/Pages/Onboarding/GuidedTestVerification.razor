@@ -4,6 +4,7 @@
 @inject ApiClient Api
 @inject NavigationManager Nav
 
+<OnboardingGuard Step="7" />
 <PageTitle>TruvoID " Run Your First Verification</PageTitle>
 
 <div class="min-h-screen flex flex-col justify-center items-center p-4 md:p-8 bg-background text-on-background">
@@ -176,10 +177,17 @@
     {
         try
         {
-            await Api.PostRawAsync("/v1/onboarding/complete", new { });
+            var response = await Api.PostRawAsync("/v1/onboarding/complete", new { });
+            if (!response.IsSuccessStatusCode)
+            {
+                // Non-blocking — log but continue since user has completed the test
+                Console.WriteLine($"[Onboarding] Complete endpoint returned {response.StatusCode}");
+            }
         }
-        catch { /* Best effort */ }
-
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Onboarding] Complete endpoint error: {ex.Message}");
+        }
         Nav.NavigateTo("/pending-approval");
     }
 }

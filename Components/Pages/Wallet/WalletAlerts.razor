@@ -1,7 +1,9 @@
 ﻿@page "/wallet/alerts"
 @layout DashboardLayout
 @rendermode InteractiveServer
+@using TruvoID.Components.Services
 @inject ApiClient Api
+@inject ToastService Toast
 
 <AuthGuard />
 <PageTitle>Wallet Alerts " TruvoID</PageTitle>
@@ -18,13 +20,15 @@
         <p class="font-body-md text-body-md text-slate-gray">Configure balance notifications and billing contacts.</p>
     </header>
 
-    @if (!string.IsNullOrEmpty(_message))
+    @if (_loading)
     {
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded text-green-700 font-body-sm text-body-sm flex items-center gap-2">
-            <span class="material-symbols-outlined text-[16px]">check_circle</span>
-            @_message
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter animate-pulse">
+            <div class="lg:col-span-8 h-64 bg-surface-container-low rounded-lg"></div>
+            <div class="lg:col-span-4 h-64 bg-surface-container-low rounded-lg"></div>
         </div>
     }
+    else
+    {
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
 
@@ -115,34 +119,91 @@
             </section>
         </div>
     </div>
+
+    } @* end else *@
 </div>
 
 @code {
     private decimal _threshold = 10000;
     private bool _emailEnabled = true;
     private bool _smsEnabled = false;
-    private string _billingName = "Finance Department";
-    private string _billingEmail = "billing@organization.com";
-    private string? _message;
+    private string _billingName = string.Empty;
+    private string _billingEmail = string.Empty;
+    private bool _loading = true;
 
-    private void SaveAlerts()
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Persist to backend
-        _message = "Alert settings saved successfully.";
-        _ = ClearMessage();
+        await Task.WhenAll(LoadAlertSettings(), LoadBillingContact());
+        _loading = false;
     }
 
-    private void SaveBilling()
+    private async Task LoadAlertSettings()
     {
-        // TODO: Persist to backend
-        _message = "Billing contact updated.";
-        _ = ClearMessage();
+        try
+        {
+            var settings = await Api.GetAsync<WalletAlertSettingsResponse>("v1/wallet/alerts");
+            if (settings is not null)
+            {
+                _threshold = settings.Threshold;
+                _emailEnabled = settings.EmailEnabled;
+                _smsEnabled = settings.SmsEnabled;
+            }
+        }
+        catch { }
     }
 
-    private async Task ClearMessage()
+    private async Task LoadBillingContact()
     {
-        await Task.Delay(3000);
-        _message = null;
-        StateHasChanged();
+        try
+        {
+            var contact = await Api.GetAsync<BillingContactResponse>("v1/wallet/billing-contact");
+            if (contact is not null)
+            {
+                _billingName = contact.Name;
+                _billingEmail = contact.Email;
+            }
+        }
+        catch { }
+    }
+
+    private async Task SaveAlerts()
+    {
+        try
+        {
+            var response = await Api.PostRawAsync("/v1/wallet/alerts", new
+            {
+                threshold = _threshold,
+                emailEnabled = _emailEnabled,
+                smsEnabled = _smsEnabled
+            });
+            if (response.IsSuccessStatusCode)
+                Toast.Success("Alert settings saved.");
+            else
+                Toast.Error(await ApiClient.GetErrorMessageAsync(response));
+        }
+        catch
+        {
+            Toast.Error("Unable to save alert settings.");
+        }
+    }
+
+    private async Task SaveBilling()
+    {
+        try
+        {
+            var response = await Api.PostRawAsync("/v1/wallet/billing-contact", new
+            {
+                name = _billingName,
+                email = _billingEmail
+            });
+            if (response.IsSuccessStatusCode)
+                Toast.Success("Billing contact updated.");
+            else
+                Toast.Error(await ApiClient.GetErrorMessageAsync(response));
+        }
+        catch
+        {
+            Toast.Error("Unable to update billing contact.");
+        }
     }
 }

@@ -7,7 +7,7 @@
     {
         if (!firstRender) return;
         var token = await TokenService.GetAccessTokenAsync();
-        if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(token) || await TokenService.IsTokenExpiredAsync())
             Nav.NavigateTo("/login", forceLoad: false);
     }
 }

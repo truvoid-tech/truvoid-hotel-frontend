@@ -46,6 +46,29 @@ public class ApiClient
         return request;
     }
 
+    private async Task<bool> TryRefreshTokenAsync()
+    {
+        var refreshToken = await _tokenService.GetRefreshTokenAsync();
+        if (string.IsNullOrEmpty(refreshToken)) return false;
+
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "/v1/auth/refresh");
+            request.Content = JsonContent.Create(new { refreshToken }, options: JsonOptions);
+            var response = await _http.SendAsync(request);
+            if (!response.IsSuccessStatusCode) return false;
+
+            var result = await response.Content.ReadFromJsonAsync<RefreshResponse>(JsonOptions);
+            if (result is null || string.IsNullOrEmpty(result.AccessToken)) return false;
+
+            await _tokenService.SetTokensAsync(result.AccessToken, result.RefreshToken ?? refreshToken, result.ExpiresAt);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    private record RefreshResponse(string AccessToken, string? RefreshToken, DateTime ExpiresAt);
+
     public async Task<T?> GetAsync<T>(string url)
     {
         // During SSR prerender localStorage is inaccessible → token is null.
@@ -60,8 +83,11 @@ public class ApiClient
 
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return default;
         }
 
@@ -75,8 +101,11 @@ public class ApiClient
         var response = await _http.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return;
         }
         response.EnsureSuccessStatusCode();
@@ -89,8 +118,11 @@ public class ApiClient
 
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return default;
         }
 
@@ -128,8 +160,11 @@ public class ApiClient
         var response = await _http.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return;
         }
         response.EnsureSuccessStatusCode();
@@ -142,8 +177,11 @@ public class ApiClient
 
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return default;
         }
 
@@ -163,8 +201,11 @@ public class ApiClient
         var response = await _http.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return;
         }
         response.EnsureSuccessStatusCode();
@@ -177,8 +218,11 @@ public class ApiClient
 
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await _tokenService.ClearTokensAsync();
-            _nav.NavigateTo("/login", forceLoad: true);
+            if (!await TryRefreshTokenAsync())
+            {
+                await _tokenService.ClearTokensAsync();
+                _nav.NavigateTo("/login", forceLoad: true);
+            }
             return default;
         }
 

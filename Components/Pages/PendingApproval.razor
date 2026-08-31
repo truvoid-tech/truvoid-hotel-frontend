@@ -1,6 +1,7 @@
 @page "/pending-approval"
 @layout OnboardingLayout
 @rendermode InteractiveServer
+@implements IDisposable
 @inject TokenService TokenService
 @inject NavigationManager Nav
 
@@ -103,18 +104,32 @@
 @code {
     private bool _checking;
     private string? _statusMessage;
+    private System.Threading.Timer? _pollTimer;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        _pollTimer = new System.Threading.Timer(_ => InvokeAsync(PollApproval), null,
+            TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    private async Task PollApproval()
+    {
+        try
+        {
+            Nav.NavigateTo("/dashboard", forceLoad: true);
+        }
+        catch { }
+    }
 
     private async Task CheckApproval()
     {
         _checking = true;
         _statusMessage = null;
         StateHasChanged();
-
         try
         {
-            // Re-check via a short pause then navigate to dashboard — the dashboard will
-            // handle the redirect back here if still pending.
-            await Task.Delay(800);
+            await Task.Delay(400);
             Nav.NavigateTo("/dashboard", forceLoad: true);
         }
         finally
@@ -125,7 +140,13 @@
 
     private async Task Logout()
     {
+        _pollTimer?.Dispose();
         await TokenService.ClearTokensAsync();
         Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        _pollTimer?.Dispose();
     }
 }

@@ -25,6 +25,7 @@ if (string.IsNullOrWhiteSpace(apiBaseUrl))
     apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5000";
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<ApiClient>();
+builder.Services.AddScoped<ToastService>();
 
 var app = builder.Build();
 

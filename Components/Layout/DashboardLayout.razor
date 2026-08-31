@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@using TruvoID.Components.Services
 @inject NavigationManager NavigationManager
 
 
@@ -93,7 +94,7 @@
             </div>
         </header>
 
-        @Body
+        <AppErrorBoundary>@Body</AppErrorBoundary>
 
         <!-- Compliance Footer -->
         <footer class="mt-auto border-t border-outline-variant bg-surface-container-low px-margin-mobile md:px-margin-desktop py-6">
@@ -130,6 +131,8 @@
     </nav>
     <div class="h-16 md:hidden w-full shrink-0"></div>
 </div>
+
+<ToastContainer />
 
 @code {
     private bool IsActive(string prefix)

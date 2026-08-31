@@ -4,6 +4,7 @@
 @inject ApiClient Api
 @inject NavigationManager Nav
 
+<OnboardingGuard Step="6" />
 <PageTitle>TruvoID " Invite Core Team</PageTitle>
 
 <style>
@@ -46,6 +47,9 @@
             @if (!string.IsNullOrEmpty(_errorMessage))
             {
                 <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-700 font-body-sm text-body-sm">@_errorMessage</div>
+                <button class="mb-6 text-slate-gray font-label-sm text-label-sm underline hover:text-on-surface" @onclick='() => Nav.NavigateTo("/onboarding/verify")'>
+                    Continue to next step anyway
+                </button>
             }
 
             <!-- Invitation Forms -->
@@ -121,29 +125,38 @@
     {
         _isLoading = true;
         _errorMessage = null;
+        var failedEmails = new List<string>();
 
-        try
+        var toInvite = _invites.Where(i => !string.IsNullOrWhiteSpace(i.Email)).ToList();
+        foreach (var invite in toInvite)
         {
-            foreach (var invite in _invites.Where(i => !string.IsNullOrWhiteSpace(i.Email)))
+            try
             {
-                await Api.PostRawAsync("/v1/onboarding/staff", new
+                var res = await Api.PostRawAsync("/v1/onboarding/staff", new
                 {
                     fullName = invite.FullName,
                     email = invite.Email,
                     role = int.Parse(invite.Role),
                     dailyCallLimit = invite.DailyCallLimit
                 });
+                if (!res.IsSuccessStatusCode)
+                    failedEmails.Add(invite.Email);
             }
+            catch
+            {
+                failedEmails.Add(invite.Email);
+            }
+        }
 
+        _isLoading = false;
+
+        if (failedEmails.Count > 0)
+        {
+            _errorMessage = $"Failed to invite: {string.Join(", ", failedEmails)}. You can retry later from the dashboard.";
+        }
+        else
+        {
             Nav.NavigateTo("/onboarding/verify");
-        }
-        catch (Exception)
-        {
-            _errorMessage = "Some invitations failed. You can retry from the dashboard.";
-        }
-        finally
-        {
-            _isLoading = false;
         }
     }
 

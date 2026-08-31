@@ -4,6 +4,7 @@
 @inject ApiClient Api
 @inject NavigationManager Nav
 
+<OnboardingGuard Step="5" />
 <PageTitle>TruvoID " Wallet Setup</PageTitle>
 
 <div class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
@@ -115,9 +116,7 @@
 
             if (response?.AuthorizationUrl is not null)
             {
-                // In production, redirect to Paystack checkout
-                // For now, navigate to staff step
-                Nav.NavigateTo("/onboarding/staff");
+                Nav.NavigateTo(response.AuthorizationUrl, forceLoad: true);
             }
             else
             {

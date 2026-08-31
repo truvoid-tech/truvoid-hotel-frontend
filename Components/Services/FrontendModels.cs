@@ -187,3 +187,28 @@ public class InstitutionSetupRequest
     public string ContactPhone { get; set; } = string.Empty;
 }
 
+// ── Notification Preferences ─────────────────────────────────────────────────
+
+public class NotificationPreferencesResponse
+{
+    public decimal AlertThreshold { get; set; } = 10000;
+    public bool EmailAlerts { get; set; } = true;
+    public bool SmsAlerts { get; set; } = false;
+    public bool VerifyEmailResults { get; set; } = false;
+}
+
+// ── Wallet Alert Settings ─────────────────────────────────────────────────────
+
+public class WalletAlertSettingsResponse
+{
+    public decimal Threshold { get; set; } = 10000;
+    public bool EmailEnabled { get; set; } = true;
+    public bool SmsEnabled { get; set; } = false;
+}
+
+public class BillingContactResponse
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+

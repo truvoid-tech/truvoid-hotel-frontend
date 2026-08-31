@@ -1,8 +1,10 @@
 ﻿@page "/settings"
 @rendermode InteractiveServer
 @layout DashboardLayout
+@using TruvoID.Components.Services
 @inject ApiClient Api
 @inject NavigationManager Nav
+@inject ToastService Toast
 
 <AuthGuard />
 <PageTitle>TruvoID " Settings</PageTitle>
@@ -51,7 +53,11 @@
     }
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• INSTITUTION PROFILE TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    @if (_activeTab == "profile")
+    @if (_loading)
+    {
+        <div class="animate-pulse h-64 bg-surface-container-low rounded-xl"></div>
+    }
+    else if (_activeTab == "profile")
     {
         <div class="bg-paper-white border border-outline-variant rounded-xl overflow-hidden">
             <div class="p-6 md:p-8 border-b border-outline-variant">
@@ -112,7 +118,7 @@
     }
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• NOTIFICATIONS TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    @if (_activeTab == "notifications")
+    else if (_activeTab == "notifications")
     {
         <div class="space-y-6">
             <!-- Low Balance Alerts -->
@@ -196,7 +202,7 @@
     }
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SECURITY TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    @if (_activeTab == "security")
+    else if (_activeTab == "security")
     {
         <div class="space-y-6">
             <!-- Change Password -->
@@ -252,7 +258,7 @@
                         <p class="font-body-sm text-body-sm text-on-surface font-medium">Deactivate Account</p>
                         <p class="font-body-sm text-[12px] text-slate-gray">This will disable all verification operations and API access.</p>
                     </div>
-                    <button class="border border-error text-error font-label-sm text-label-sm uppercase py-2 px-4 rounded hover:bg-error-container/30 transition-colors">
+                    <button @onclick='() => _showDeactivateConfirm = true' class="border border-error text-error font-label-sm text-label-sm uppercase py-2 px-4 rounded hover:bg-error-container/30 transition-colors">
                         Deactivate
                     </button>
                 </div>
@@ -261,8 +267,30 @@
     }
 </div>
 
+@if (_showDeactivateConfirm)
+{
+    <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-paper-white rounded-lg shadow-xl max-w-sm w-full p-8 text-center">
+            <span class="material-symbols-outlined text-error text-[40px] mb-4">warning</span>
+            <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Deactivate Account?</h3>
+            <p class="font-body-sm text-body-sm text-slate-gray mb-6">This will suspend all API access for your institution. This action cannot be undone without contacting support.</p>
+            <div class="flex gap-3">
+                <button @onclick='() => _showDeactivateConfirm = false'
+                        class="flex-1 px-4 py-2 border border-outline-variant text-on-surface font-label-md text-label-md uppercase rounded hover:bg-surface-container-low transition-colors">
+                    Cancel
+                </button>
+                <button @onclick="ConfirmDeactivate"
+                        class="flex-1 px-4 py-2 bg-error text-on-error font-label-md text-label-md uppercase rounded hover:opacity-90 transition-opacity">
+                    Deactivate
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private string _activeTab = "profile";
+    private bool _loading = true;
     private bool _saving = false;
     private string? _saveMessage;
     private string? _errorMessage;
@@ -286,6 +314,7 @@
     private string _confirmPassword = string.Empty;
     private string? _passwordError;
     private bool _changingPassword = false;
+    private bool _showDeactivateConfirm = false;
 
     private string TabClass(string tab) => _activeTab == tab
         ? "px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 border-warm-gold text-deep-navy"
@@ -301,18 +330,39 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.WhenAll(LoadProfile(), LoadNotificationPreferences());
+        _loading = false;
+    }
+
+    private async Task LoadProfile()
+    {
         try
         {
             var status = await Api.GetAsync<OnboardingStatusResponse>("v1/onboarding/status");
             if (status?.Institution is not null)
             {
                 _institutionName = status.Institution.Name;
+                _contactEmail = status.Institution.ContactEmail;
+                _contactPhone = status.Institution.ContactPhone;
             }
         }
-        catch
+        catch { }
+    }
+
+    private async Task LoadNotificationPreferences()
+    {
+        try
         {
-            // Use defaults if API not available
+            var prefs = await Api.GetAsync<NotificationPreferencesResponse>("v1/settings/notifications");
+            if (prefs is not null)
+            {
+                _alertThreshold = prefs.AlertThreshold;
+                _emailAlerts = prefs.EmailAlerts;
+                _smsAlerts = prefs.SmsAlerts;
+                _verifyEmailResults = prefs.VerifyEmailResults;
+            }
         }
+        catch { }
     }
 
     private async Task SaveProfile()
@@ -329,10 +379,11 @@
                 ContactPhone = _contactPhone
             });
             _saveMessage = "Institution profile updated successfully.";
+            Toast.Success("Profile saved.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _errorMessage = $"Failed to save: {ex.Message}";
+            _errorMessage = "Failed to save profile. Please try again.";
         }
         finally
         {
@@ -347,12 +398,26 @@
         _errorMessage = null;
         try
         {
-            await Task.Delay(300);
-            _saveMessage = "Notification preferences saved.";
+            var response = await Api.PostRawAsync("v1/settings/notifications", new
+            {
+                alertThreshold = _alertThreshold,
+                emailAlerts = _emailAlerts,
+                smsAlerts = _smsAlerts,
+                verifyEmailResults = _verifyEmailResults
+            });
+            if (response.IsSuccessStatusCode)
+            {
+                _saveMessage = "Notification preferences saved.";
+                Toast.Success("Notification preferences saved.");
+            }
+            else
+            {
+                _errorMessage = await ApiClient.GetErrorMessageAsync(response);
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            _errorMessage = $"Failed to save: {ex.Message}";
+            _errorMessage = "Failed to save preferences. Please try again.";
         }
         finally
         {
@@ -394,11 +459,27 @@
         }
         catch (Exception ex)
         {
-            _passwordError = ex.Message;
+            var apiMsg = ex.Message.Contains("{") ? "Password change failed." : ex.Message;
+            _passwordError = apiMsg;
         }
         finally
         {
             _changingPassword = false;
         }
+    }
+
+    private async Task ConfirmDeactivate()
+    {
+        _showDeactivateConfirm = false;
+        try
+        {
+            var response = await Api.PostRawAsync("/v1/auth/deactivate", new { });
+            if (response.IsSuccessStatusCode)
+            {
+                await Api.GetAsync<object>("v1/auth/logout").ConfigureAwait(false);
+            }
+        }
+        catch { }
+        Nav.NavigateTo("/login", forceLoad: true);
     }
 }
