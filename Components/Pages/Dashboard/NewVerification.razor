@@ -372,22 +372,54 @@
 
         try
         {
+            HttpResponseMessage response;
             if (SelectedType == "nin")
-                _result = await Api.PostAsync<VerificationResponse>("/v1/verify/nin", new { nin = _subjectRef.Trim() });
+                response = await Api.PostRawAsync("/v1/verify/nin", new { nin = _subjectRef.Trim() });
             else if (SelectedType == "bvn")
-                _result = await Api.PostAsync<VerificationResponse>("/v1/verify/bvn", new { bvn = _subjectRef.Trim() });
+                response = await Api.PostRawAsync("/v1/verify/bvn", new { bvn = _subjectRef.Trim() });
             else
-                _result = await Api.PostAsync<VerificationResponse>("/v1/verify/phone", new { phoneNumber = _subjectRef.Trim() });
+                response = await Api.PostRawAsync("/v1/verify/phone", new { phoneNumber = _subjectRef.Trim() });
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                _result = new VerificationResponse
+                {
+                    Status = "error",
+                    ErrorCode = "UPSTREAM_ERROR",
+                    ErrorMessage = $"Backend returned HTTP {(int)response.StatusCode} with empty body."
+                };
+            }
+            else
+            {
+                try
+                {
+                    _result = System.Text.Json.JsonSerializer.Deserialize<VerificationResponse>(content, new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch
+                {
+                    _result = new VerificationResponse
+                    {
+                        Status = "error",
+                        ErrorCode = "PARSE_ERROR",
+                        ErrorMessage = content
+                    };
+                }
+            }
 
             _progress = 100;
         }
-        catch
+        catch (Exception ex)
         {
             _result = new VerificationResponse
             {
                 Status = "error",
                 ErrorCode = "UPSTREAM_ERROR",
-                ErrorMessage = "Unable to connect to verification service."
+                ErrorMessage = $"Unable to connect to verification service: {ex.Message}"
             };
         }
         finally
