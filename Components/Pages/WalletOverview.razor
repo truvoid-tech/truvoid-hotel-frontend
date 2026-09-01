@@ -17,6 +17,7 @@
             <div>
                 <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-4">Current Balance</p>
                 <h3 class="font-display-lg text-display-lg text-deep-navy font-bold">&#8358;@(_balance?.Balance.ToString("N2") ?? "0.00")</h3>
+                <p class="font-label-md text-label-md text-warm-gold font-semibold mt-1">&#8776; @(_balance?.Tokens.ToString("N0") ?? "0") tokens</p>
                 <p class="font-body-sm text-body-sm text-on-surface-variant mt-2 flex items-center gap-2">
                     <span class="material-symbols-outlined text-warm-gold" style="font-size: 16px;">verified</span>
                     Available for immediate verification operations
@@ -55,9 +56,19 @@
                     <div>
                         <h4 class="font-body-lg text-body-lg text-deep-navy font-semibold">Pricing</h4>
                         <div class="space-y-1 mt-2">
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">NIN: &#8358;100/lookup</p>
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">BVN: &#8358;150/lookup</p>
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">Phone: &#8358;50/lookup</p>
+                            @if (_tokenPricing?.Rates.Any() == true)
+                            {
+                                @foreach (var rate in _tokenPricing.Rates)
+                                {
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant">@rate.Type: &#8358;@rate.PricePerCall.ToString("N0")/lookup (@rate.TokenCost.ToString("N0") tokens)</p>
+                                }
+                            }
+                            else
+                            {
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">NIN: &#8358;300/lookup</p>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">BVN: &#8358;300/lookup</p>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Phone: &#8358;300/lookup</p>
+                            }
                         </div>
                     </div>
                 </div>
@@ -123,6 +134,7 @@
 @code {
     private WalletBalanceResponse? _balance;
     private List<WalletTransactionResponse>? _recentTransactions;
+    private TokenPricingResponse? _tokenPricing;
     private decimal _monthlySpend;
     private int _monthlyPercent;
 
@@ -132,6 +144,7 @@
         {
             _balance = await Api.GetAsync<WalletBalanceResponse>("/v1/wallet/balance");
             _recentTransactions = await Api.GetAsync<List<WalletTransactionResponse>>("/v1/wallet/transactions?page=1&pageSize=10");
+            _tokenPricing = await Api.GetAsync<TokenPricingResponse>("/v1/pricing/tokens");
 
             if (_recentTransactions is not null)
             {

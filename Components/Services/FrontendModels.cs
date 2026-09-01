@@ -67,6 +67,7 @@ public class CreateApiKeyRequest
 public class WalletBalanceResponse
 {
     public decimal Balance { get; set; }
+    public decimal Tokens { get; set; }
     public string Currency { get; set; } = "NGN";
 }
 
@@ -75,6 +76,7 @@ public class WalletTransactionResponse
     public string Id { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public decimal BalanceAfter { get; set; }
+    public decimal Tokens { get; set; }
     public WalletTransactionType Type { get; set; }
     public string? Description { get; set; }
     public string? Reference { get; set; }
@@ -83,6 +85,21 @@ public class WalletTransactionResponse
 }
 
 public enum WalletTransactionType { Credit, Debit }
+
+// ── Tokens ───────────────────────────────────────────────────────────────────
+
+public class TokenRateDto
+{
+    public string Type { get; set; } = string.Empty;
+    public decimal PricePerCall { get; set; }
+    public decimal TokenCost { get; set; }
+}
+
+public class TokenPricingResponse
+{
+    public decimal NairaPerToken { get; set; }
+    public List<TokenRateDto> Rates { get; set; } = [];
+}
 
 // ── Team ─────────────────────────────────────────────────────────────────────
 
