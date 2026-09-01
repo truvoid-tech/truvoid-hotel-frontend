@@ -1,6 +1,6 @@
 @rendermode InteractiveServer
 @inject TokenService TokenService
-@inject TruvoIDAuthStateProvider AuthState
+@inject ApiClient Api
 @inject NavigationManager Nav
 
 @code {
@@ -15,10 +15,28 @@
             return;
         }
 
-        var state = await AuthState.GetAuthenticationStateAsync();
-        var role = state.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        // Role comes from the server response, not the locally-parsed JWT —
+        // the client never verifies the token's signature, so trusting a
+        // claim read straight out of localStorage would let a forged token
+        // grant itself the PlatformAdmin UI. GET /v1/auth/me returns the
+        // role the backend actually thinks this token holds.
+        AuthProfile? profile;
+        try
+        {
+            profile = await Api.GetAsync<AuthProfile>("/v1/auth/me");
+        }
+        catch
+        {
+            return; // transient error — don't kick the user out
+        }
 
-        if (role != "PlatformAdmin")
+        if (profile is null)
+        {
+            Nav.NavigateTo("/login", forceLoad: false);
+            return;
+        }
+
+        if (profile.Role != AuthRole.PlatformAdmin)
         {
             Nav.NavigateTo("/dashboard", forceLoad: false);
         }

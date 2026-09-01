@@ -16,6 +16,21 @@ public class LoginResponse
     public DateTime ExpiresAt { get; set; }
 }
 
+// Mirrors TruvoID.Domain.Enums.UserRole on the backend — NOT the same as the
+// unrelated team-management UserRole enum below, whose ordinals differ.
+public enum AuthRole { Staff = 0, Admin = 1, SuperAdmin = 2, PlatformAdmin = 3 }
+
+/// <summary>Result of GET /v1/auth/me — used to verify a session is still valid server-side.</summary>
+public class AuthProfile
+{
+    public string UserId { get; set; } = string.Empty;
+    public string? InstitutionId { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? FullName { get; set; }
+    public AuthRole Role { get; set; }
+    public string InstitutionName { get; set; } = string.Empty;
+}
+
 // ── Verification ─────────────────────────────────────────────────────────────
 
 public enum VerificationType { Nin, Bvn, Phone }
