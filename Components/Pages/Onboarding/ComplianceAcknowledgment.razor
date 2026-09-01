@@ -140,7 +140,7 @@
 
             if (response.IsSuccessStatusCode)
             {
-                Nav.NavigateTo("/onboarding/wallet");
+                Nav.NavigateTo("/onboarding/wallet", forceLoad: true);
             }
             else
             {

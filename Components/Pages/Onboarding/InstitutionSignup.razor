@@ -186,7 +186,7 @@
 
             await TokenService.SetTokensAsync(response.AccessToken, response.RefreshToken, response.ExpiresAt);
             AuthState.NotifyAuthenticationStateChanged();
-            Nav.NavigateTo("/onboarding/business");
+            Nav.NavigateTo("/onboarding/business", forceLoad: true);
         }
         catch (HttpRequestException)
         {

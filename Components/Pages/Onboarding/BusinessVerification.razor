@@ -148,7 +148,7 @@
             var response = await Api.PutRawAsync("/v1/onboarding/business", _model);
             if (response.IsSuccessStatusCode)
             {
-                Nav.NavigateTo("/onboarding/admin");
+                Nav.NavigateTo("/onboarding/admin", forceLoad: true);
             }
             else
             {

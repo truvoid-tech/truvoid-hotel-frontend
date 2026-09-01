@@ -47,7 +47,7 @@
             @if (!string.IsNullOrEmpty(_errorMessage))
             {
                 <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-700 font-body-sm text-body-sm">@_errorMessage</div>
-                <button class="mb-6 text-slate-gray font-label-sm text-label-sm underline hover:text-on-surface" @onclick='() => Nav.NavigateTo("/onboarding/verify")'>
+                <button class="mb-6 text-slate-gray font-label-sm text-label-sm underline hover:text-on-surface" @onclick='() => Nav.NavigateTo("/onboarding/verify", forceLoad: true)'>
                     Continue to next step anyway
                 </button>
             }
@@ -119,7 +119,7 @@
 
     private void AddInvite() => _invites.Add(new() { DailyCallLimit = 50 });
     private void RemoveInvite(InviteModel invite) => _invites.Remove(invite);
-    private void Skip() => Nav.NavigateTo("/onboarding/verify");
+    private void Skip() => Nav.NavigateTo("/onboarding/verify", forceLoad: true);
 
     private async Task HandleInvite()
     {
@@ -156,7 +156,7 @@
         }
         else
         {
-            Nav.NavigateTo("/onboarding/verify");
+            Nav.NavigateTo("/onboarding/verify", forceLoad: true);
         }
     }
 

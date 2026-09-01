@@ -102,7 +102,7 @@
             var response = await Api.PutRawAsync("/v1/onboarding/institution", _model);
             if (response.IsSuccessStatusCode)
             {
-                Nav.NavigateTo("/onboarding/compliance");
+                Nav.NavigateTo("/onboarding/compliance", forceLoad: true);
             }
             else
             {

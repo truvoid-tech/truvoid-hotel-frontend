@@ -188,6 +188,6 @@
         {
             Console.WriteLine($"[Onboarding] Complete endpoint error: {ex.Message}");
         }
-        Nav.NavigateTo("/pending-approval");
+        Nav.NavigateTo("/pending-approval", forceLoad: true);
     }
 }
