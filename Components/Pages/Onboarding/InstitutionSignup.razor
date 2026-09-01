@@ -71,24 +71,6 @@
                     </div>
                 </div>
 
-                <!-- Business Email -->
-                <div>
-                    <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="email">Primary Contact Email</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">mail</span>
-                        <InputText class="w-full bg-paper-white border border-surface-container-high rounded-DEFAULT pl-10 pr-4 py-3 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy transition-colors outline-none" id="email" @bind-Value="_model.ContactEmail" type="email" placeholder="admin@institution.com" />
-                    </div>
-                </div>
-
-                <!-- Phone -->
-                <div>
-                    <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="phone">Institutional Phone</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">phone</span>
-                        <InputText class="w-full bg-paper-white border border-surface-container-high rounded-DEFAULT pl-10 pr-4 py-3 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy transition-colors outline-none" id="phone" @bind-Value="_model.ContactPhone" type="tel" placeholder="+234 800 000 0000" />
-                    </div>
-                </div>
-
                 <!-- Admin Full Name -->
                 <div>
                     <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="adminName">Your Full Name</label>
@@ -98,21 +80,21 @@
                     </div>
                 </div>
 
-                <!-- Admin Email -->
+                <!-- Email -->
                 <div>
-                    <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="adminEmail">Admin Email</label>
+                    <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="email">Email</label>
                     <div class="relative">
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">mail</span>
-                        <InputText class="w-full bg-paper-white border border-surface-container-high rounded-DEFAULT pl-10 pr-4 py-3 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy transition-colors outline-none" id="adminEmail" @bind-Value="_model.AdminEmail" type="email" placeholder="jane.doe@institution.com" />
+                        <InputText class="w-full bg-paper-white border border-surface-container-high rounded-DEFAULT pl-10 pr-4 py-3 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy transition-colors outline-none" id="email" @bind-Value="_model.AdminEmail" type="email" placeholder="jane.doe@institution.com" />
                     </div>
                 </div>
 
-                <!-- Admin Phone -->
+                <!-- Phone -->
                 <div>
-                    <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="adminPhone">Admin Phone</label>
+                    <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2" for="phone">Contact Number</label>
                     <div class="relative">
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">phone</span>
-                        <InputText class="w-full bg-paper-white border border-surface-container-high rounded-DEFAULT pl-10 pr-4 py-3 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy transition-colors outline-none" id="adminPhone" @bind-Value="_model.AdminPhone" type="tel" placeholder="+234 800 000 0000" />
+                        <InputText class="w-full bg-paper-white border border-surface-container-high rounded-DEFAULT pl-10 pr-4 py-3 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy transition-colors outline-none" id="phone" @bind-Value="_model.AdminPhone" type="tel" placeholder="+234 800 000 0000" />
                     </div>
                 </div>
 
@@ -181,6 +163,11 @@
 
         try
         {
+            // Backend still models institution contact and admin contact separately;
+            // the form only collects one email/phone, so use it for both.
+            _model.ContactEmail = _model.AdminEmail;
+            _model.ContactPhone = _model.AdminPhone;
+
             var raw = await Api.PostRawAsync("/v1/auth/register", _model);
 
             if (raw.StatusCode == System.Net.HttpStatusCode.Conflict)
