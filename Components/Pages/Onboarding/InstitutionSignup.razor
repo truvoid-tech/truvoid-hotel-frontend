@@ -143,14 +143,6 @@
     private bool _isLoading;
     private string? _errorMessage;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        var token = await TokenService.GetAccessTokenAsync();
-        if (!string.IsNullOrEmpty(token) && !await TokenService.IsTokenExpiredAsync())
-            Nav.NavigateTo("/dashboard", forceLoad: false);
-    }
-
     private static readonly System.Text.Json.JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
