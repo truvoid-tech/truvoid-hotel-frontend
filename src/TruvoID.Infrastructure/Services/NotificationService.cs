@@ -19,12 +19,14 @@ public class NotificationService : INotificationService
 {
     private readonly IEmailService _email;
     private readonly MongoDbContext _db;
+    private readonly NotificationFeedService _feed;
     private readonly ILogger<NotificationService> _logger;
 
-    public NotificationService(IEmailService email, MongoDbContext db, ILogger<NotificationService> logger)
+    public NotificationService(IEmailService email, MongoDbContext db, NotificationFeedService feed, ILogger<NotificationService> logger)
     {
         _email = email;
         _db = db;
+        _feed = feed;
         _logger = logger;
     }
 
@@ -49,6 +51,14 @@ public class NotificationService : INotificationService
             await _email.SendAsync(toEmail, adminName,
                 "Your TruvoID Account Is Approved",
                 EmailTemplates.Approved(institutionName, adminName));
+
+            // Push in-app notification
+            var institution = await _db.Institutions
+                .Find(i => i.Name == institutionName)
+                .FirstOrDefaultAsync();
+            if (institution is not null)
+                await _feed.PushAsync(institution.Id, "approval", "Account Approved",
+                    $"Your institution {institutionName} has been approved. You can now start making verifications.", "/dashboard");
         }
         catch (Exception ex)
         {
@@ -123,6 +133,10 @@ public class NotificationService : INotificationService
                     EmailTemplates.LowBalance(institution.Name, newBalance, prefs.AlertThreshold));
             }
 
+            // Push in-app notification
+            await _feed.PushAsync(institutionId, "low_balance", "Low Balance Alert",
+                $"Your wallet balance has dropped to ₦{newBalance:N2}, below your threshold of ₦{prefs.AlertThreshold:N2}. Top up to avoid service interruption.", "/wallet");
+
             var throttleUpdate = Builders<NotificationPreference>.Update
                 .Set(p => p.LastLowBalanceAlertAt, DateTime.UtcNow)
                 .Set(p => p.UpdatedAt, DateTime.UtcNow);
@@ -142,6 +156,12 @@ public class NotificationService : INotificationService
                 .Find(p => p.InstitutionId == institutionId)
                 .FirstOrDefaultAsync();
 
+            // Always push in-app notification regardless of email preference
+            await _feed.PushAsync(institutionId, "verification_result",
+                $"Verification {status} — {verificationType.ToUpperInvariant()}",
+                $"Verification for {verificationType.ToUpperInvariant()} returned {status}. Cost: ₦{cost:N2}.", "/history");
+
+            // Send email only if the institution opted in
             if (prefs is null || !prefs.VerifyEmailResults) return;
 
             var institution = await _db.Institutions

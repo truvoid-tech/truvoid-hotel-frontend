@@ -119,6 +119,20 @@ public class InstitutionPricingRateDto
     public decimal PricePerCall { get; set; }
 }
 
+// ── Notification Feed ──────────────────────────────────────────────────────
+
+public class NotificationFeedItem
+{
+    public string Id { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public string? ActionUrl { get; set; }
+    public bool IsRead { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? ReadAt { get; set; }
+}
+
 // ── Team ─────────────────────────────────────────────────────────────────────
 
 public enum UserRole { Admin, Staff, ReadOnly }
