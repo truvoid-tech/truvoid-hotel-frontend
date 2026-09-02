@@ -41,9 +41,8 @@ public record AdminInstitutionDto
     public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = "";
     public string Email { get; init; } = "";
-    public string Status { get; init; } = "Active"; // Active, Pending, Suspended
+    public string Status { get; init; } = "Pending"; // Active, Pending, Suspended
     public decimal WalletBalance { get; init; }
-    public decimal Tokens { get; init; }
     public int ApiCallsMtd { get; init; }
     public DateTime JoinedDate { get; init; }
     public string Type { get; init; } = "";
@@ -55,7 +54,6 @@ public record AdminTopUpDto
     public string Institution { get; init; } = "";
     public string Email { get; init; } = "";
     public decimal Amount { get; init; }
-    public decimal Tokens { get; init; }
     public string Reference { get; init; } = "";
     public string Submitted { get; init; } = "";
     public string Status { get; init; } = "Pending";
@@ -67,7 +65,6 @@ public record AdminTransactionDto
     public string Institution { get; init; } = "";
     public string Type { get; init; } = ""; // Wallet Top-Up, API Call
     public decimal Amount { get; init; }
-    public decimal Tokens { get; init; }
     public string Date { get; init; } = "";
 }
 
@@ -87,7 +84,6 @@ public record PricingDto
     public string Type { get; init; } = ""; // NIN, BVN, Phone
     public decimal InstitutionCharge { get; init; }
     public decimal NimcCost { get; init; }
-    public decimal TokenCost { get; init; }
     public decimal Margin => InstitutionCharge - NimcCost;
     public decimal MarginPct => InstitutionCharge > 0 ? Math.Round(Margin / InstitutionCharge * 100, 1) : 0;
 }
@@ -96,6 +92,33 @@ public record UpdatePricingRequest
 {
     public decimal InstitutionCharge { get; set; }
     public decimal NimcCost { get; set; }
+}
+
+// ─── Per-Institution Pricing DTOs ───
+public record InstitutionPricingAdminDto
+{
+    public string InstitutionId { get; init; } = string.Empty;
+    public string InstitutionName { get; init; } = "";
+    public string Email { get; init; } = "";
+    public string Status { get; init; } = "";
+    public decimal NinPrice { get; init; }
+    public decimal BvnPrice { get; init; }
+    public decimal PhonePrice { get; init; }
+    public decimal NinCost { get; init; }
+    public decimal BvnCost { get; init; }
+    public decimal PhoneCost { get; init; }
+    public decimal TotalSpendMtd { get; init; }
+    public int TotalCallsMtd { get; init; }
+}
+
+public record UpdateInstitutionPricingRequest
+{
+    public decimal NinPrice { get; set; }
+    public decimal BvnPrice { get; set; }
+    public decimal PhonePrice { get; set; }
+    public decimal NinCost { get; set; }
+    public decimal BvnCost { get; set; }
+    public decimal PhoneCost { get; set; }
 }
 
 // ──────────────────────────── API Audit ─────────────────────────────────

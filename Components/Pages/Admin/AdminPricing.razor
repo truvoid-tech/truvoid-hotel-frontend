@@ -5,21 +5,21 @@
 @inject ApiClient Api
 
 <AdminAuthGuard />
-<PageTitle>TruvoID Admin — Pricing &amp; Costs</PageTitle>
+<PageTitle>TruvoID Admin — Pricing</PageTitle>
 
 <div class="px-margin-mobile md:px-margin-desktop py-8 md:py-10 flex-1 flex flex-col gap-section-gap">
 
     <!-- Header -->
     <div>
-        <h1 class="font-headline-lg text-headline-lg text-on-surface">Pricing &amp; Cost Regulation</h1>
-        <p class="font-body-sm text-body-sm text-slate-gray mt-1">Set what institutions are charged and what TruvoID pays NIMC per verification type</p>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Per-Institution Pricing</h1>
+        <p class="font-body-sm text-body-sm text-slate-gray mt-1">Customize verification rates for each institution based on your agreements</p>
     </div>
 
     <!-- Info Banner -->
     <div class="flex items-start gap-3 p-4 bg-[#fef7e0] border border-[#fde083] rounded">
         <span class="material-symbols-outlined text-[#b06000] text-[20px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
         <p class="font-body-sm text-body-sm text-[#b06000]">
-            Changes to pricing take effect on the next billing cycle. Existing wallet balances are unaffected. Ensure NIMC cost is always below institution charge to maintain positive margin.
+            Each institution can have customized pricing based on your agreement. Pricing changes take effect on the next verification call. NIMC cost is TruvoID's internal cost per verification.
         </p>
     </div>
 
@@ -31,189 +31,185 @@
     }
     else
     {
-        <!-- Pricing Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
 
-            <!-- NIN -->
-            <div class="bg-paper-white border border-outline-variant rounded overflow-hidden">
-                <div class="bg-deep-navy px-6 py-4 flex items-center gap-3">
-                    <span class="material-symbols-outlined text-warm-gold text-[22px]" style="font-variation-settings: 'FILL' 1;">badge</span>
-                    <div>
-                        <h2 class="font-label-md text-label-md text-paper-white uppercase tracking-wider">NIN Verification</h2>
-                        <p class="font-body-sm text-[11px] text-on-primary/60">National Identity Number</p>
-                    </div>
+            <!-- Institution List -->
+            <div class="lg:col-span-4 bg-paper-white border border-outline-variant rounded overflow-hidden">
+                <div class="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+                    <h2 class="font-label-md text-label-md uppercase text-on-surface">Institutions</h2>
                 </div>
-                <div class="p-6 flex flex-col gap-5">
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
-                        <input @bind="_ninCharge" type="number" min="1" step="1"
-                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
-                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution's wallet is debited</p>
-                    </div>
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (&#8358;)</label>
-                        <input @bind="_ninCost" type="number" min="1" step="1"
-                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
-                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What TruvoID pays NIMC</p>
-                    </div>
-                    <div class="border-t border-outline-variant pt-4">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin per Call</span>
-                            <span class="font-label-md text-label-md @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
-                                &#8358;@((_ninCharge - _ninCost)).ToString("N2")
-                            </span>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[16px] pointer-events-none">search</span>
+                    <input @bind="_search" @bind:event="oninput" type="text" placeholder="Search..."
+                           class="w-full border-b border-outline-variant px-9 pr-4 py-2.5 font-body-sm text-body-sm text-on-background focus:ring-0 focus:outline-none bg-transparent" />
+                </div>
+                <div class="max-h-[500px] overflow-y-auto">
+                    @foreach (var inst in FilteredInstitutions)
+                    {
+                        <button @onclick="() => SelectInstitution(inst)"
+                                class="w-full text-left px-4 py-3 border-b border-outline-variant/50 hover:bg-surface-container-low transition-colors @(inst.InstitutionId == _selectedId ? "bg-primary/5 border-l-2 border-l-primary" : "")">
+                            <p class="font-label-md text-label-md text-on-surface truncate">@inst.InstitutionName</p>
+                            <p class="font-body-sm text-[11px] text-slate-gray truncate">@inst.Email</p>
+                        </button>
+                    }
+                    @if (!FilteredInstitutions.Any())
+                    {
+                        <div class="py-8 text-center">
+                            <p class="font-body-sm text-body-sm text-slate-gray">No institutions found</p>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin %</span>
-                            <span class="font-label-sm text-label-sm @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">
-                                @(_ninCharge > 0 ? Math.Round((_ninCharge - _ninCost) / _ninCharge * 100, 1) : 0)%
-                            </span>
-                        </div>
-                    </div>
-                    <button @onclick="SaveNinPricing" disabled="@(_saving)"
-                            class="w-full bg-deep-navy text-paper-white font-label-md text-label-md uppercase py-2.5 rounded hover:bg-ink transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                        <span class="material-symbols-outlined text-[16px]">save</span>
-                        Save NIN Pricing
-                    </button>
+                    }
                 </div>
             </div>
 
-            <!-- BVN -->
-            <div class="bg-paper-white border border-outline-variant rounded overflow-hidden">
-                <div class="bg-deep-navy px-6 py-4 flex items-center gap-3">
-                    <span class="material-symbols-outlined text-warm-gold text-[22px]" style="font-variation-settings: 'FILL' 1;">account_balance</span>
-                    <div>
-                        <h2 class="font-label-md text-label-md text-paper-white uppercase tracking-wider">BVN Verification</h2>
-                        <p class="font-body-sm text-[11px] text-on-primary/60">Bank Verification Number</p>
+            <!-- Pricing Editor -->
+            <div class="lg:col-span-8">
+                @if (_selected is null)
+                {
+                    <div class="bg-paper-white border border-outline-variant rounded p-12 text-center">
+                        <span class="material-symbols-outlined text-[48px] text-outline-variant mb-4 block">touch_app</span>
+                        <p class="font-body-md text-body-md text-slate-gray">Select an institution to customize their pricing</p>
                     </div>
-                </div>
-                <div class="p-6 flex flex-col gap-5">
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
-                        <input @bind="_bvnCharge" type="number" min="1" step="1"
-                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
-                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution's wallet is debited</p>
-                    </div>
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (&#8358;)</label>
-                        <input @bind="_bvnCost" type="number" min="1" step="1"
-                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
-                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What TruvoID pays NIMC</p>
-                    </div>
-                    <div class="border-t border-outline-variant pt-4">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin per Call</span>
-                            <span class="font-label-md text-label-md @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
-                                &#8358;@((_bvnCharge - _bvnCost)).ToString("N2")
+                }
+                else
+                {
+                    <div class="bg-paper-white border border-outline-variant rounded overflow-hidden">
+                        <div class="bg-deep-navy px-6 py-4 flex items-center justify-between">
+                            <div>
+                                <h2 class="font-label-md text-label-md text-paper-white uppercase tracking-wider">@_selected.InstitutionName</h2>
+                                <p class="font-body-sm text-[11px] text-on-primary/60">@_selected.Email</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-label-sm text-label-sm @StatusClass(_selected.Status)">
+                                <span class="w-1.5 h-1.5 rounded-full @StatusDot(_selected.Status)"></span>
+                                @_selected.Status
                             </span>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin %</span>
-                            <span class="font-label-sm text-label-sm @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">
-                                @(_bvnCharge > 0 ? Math.Round((_bvnCharge - _bvnCost) / _bvnCharge * 100, 1) : 0)%
-                            </span>
-                        </div>
-                    </div>
-                    <button @onclick="SaveBvnPricing" disabled="@(_saving)"
-                            class="w-full bg-deep-navy text-paper-white font-label-md text-label-md uppercase py-2.5 rounded hover:bg-ink transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                        <span class="material-symbols-outlined text-[16px]">save</span>
-                        Save BVN Pricing
-                    </button>
-                </div>
-            </div>
 
-            <!-- Phone -->
-            <div class="bg-paper-white border border-outline-variant rounded overflow-hidden">
-                <div class="bg-deep-navy px-6 py-4 flex items-center gap-3">
-                    <span class="material-symbols-outlined text-warm-gold text-[22px]" style="font-variation-settings: 'FILL' 1;">phone_iphone</span>
-                    <div>
-                        <h2 class="font-label-md text-label-md text-paper-white uppercase tracking-wider">Phone Verification</h2>
-                        <p class="font-body-sm text-[11px] text-on-primary/60">Mobile number lookup</p>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col gap-5">
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
-                        <input @bind="_phoneCharge" type="number" min="1" step="1"
-                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
-                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution's wallet is debited</p>
-                    </div>
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC API Cost (&#8358;)</label>
-                        <input @bind="_phoneCost" type="number" min="1" step="1"
-                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
-                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What TruvoID pays NIMC</p>
-                    </div>
-                    <div class="border-t border-outline-variant pt-4">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin per Call</span>
-                            <span class="font-label-md text-label-md @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
-                                &#8358;@((_phoneCharge - _phoneCost)).ToString("N2")
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="font-label-sm text-label-sm text-slate-gray uppercase">Margin %</span>
-                            <span class="font-label-sm text-label-sm @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">
-                                @(_phoneCharge > 0 ? Math.Round((_phoneCharge - _phoneCost) / _phoneCharge * 100, 1) : 0)%
-                            </span>
-                        </div>
-                    </div>
-                    <button @onclick="SavePhonePricing" disabled="@(_saving)"
-                            class="w-full bg-deep-navy text-paper-white font-label-md text-label-md uppercase py-2.5 rounded hover:bg-ink transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                        <span class="material-symbols-outlined text-[16px]">save</span>
-                        Save Phone Pricing
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <div class="p-6">
+                            @if (!string.IsNullOrEmpty(_saveMessage))
+                            {
+                                <div class="flex items-center gap-2 p-4 bg-[#e6f4ea] border border-[#ceead6] rounded text-[#137333] font-body-sm text-body-sm mb-6">
+                                    <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    @_saveMessage
+                                </div>
+                            }
 
-        <!-- Save feedback -->
-        @if (!string.IsNullOrEmpty(_saveMessage))
-        {
-            <div class="flex items-center gap-2 p-4 bg-[#e6f4ea] border border-[#ceead6] rounded text-[#137333] font-body-sm text-body-sm">
-                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                @_saveMessage
-            </div>
-        }
+                            <!-- NIN Pricing -->
+                            <div class="mb-6 pb-6 border-b border-outline-variant">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="material-symbols-outlined text-deep-navy" style="font-variation-settings: 'FILL' 1;">badge</span>
+                                    <h3 class="font-label-md text-label-md uppercase text-on-surface">NIN Verification</h3>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
+                                        <input @bind="_ninCharge" type="number" min="1" step="1"
+                                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
+                                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution pays per call</p>
+                                    </div>
+                                    <div>
+                                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC Cost (&#8358;)</label>
+                                        <input @bind="_ninCost" type="number" min="1" step="1"
+                                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
+                                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">TruvoID's cost per verification</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-3 text-sm">
+                                    <span class="font-label-sm text-label-sm text-slate-gray">Margin:</span>
+                                    <span class="font-label-sm text-label-sm @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
+                                        &#8358;@((_ninCharge - _ninCost)).ToString("N2")
+                                    </span>
+                                    <span class="font-label-sm text-label-sm @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">
+                                        (@(_ninCharge > 0 ? Math.Round((_ninCharge - _ninCost) / _ninCharge * 100, 1) : 0)%)
+                                    </span>
+                                </div>
+                            </div>
 
-        <!-- Current Effective Rates -->
-        <div class="bg-paper-white border border-outline-variant rounded p-6">
-            <h2 class="font-label-md text-label-md uppercase text-on-surface mb-4 border-b border-outline-variant pb-3">Current Effective Rates</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[500px]">
-                    <thead class="bg-surface-container-low">
-                        <tr>
-                            <th class="text-left px-4 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Type</th>
-                            <th class="text-left px-4 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Institution Charge</th>
-                            <th class="text-left px-4 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">NIMC Cost</th>
-                            <th class="text-left px-4 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Margin</th>
-                            <th class="text-left px-4 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Margin %</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-t border-outline-variant">
-                            <td class="px-4 py-3 font-label-md text-label-md text-on-surface">NIN</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_ninCharge.ToString("N2")</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_ninCost.ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-md text-label-md @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">&#8358;@((_ninCharge - _ninCost)).ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-sm text-label-sm @((_ninCharge - _ninCost) >= 0 ? "text-[#137333]" : "text-error")">@(_ninCharge > 0 ? Math.Round((_ninCharge - _ninCost) / _ninCharge * 100, 1) : 0)%</td>
-                        </tr>
-                        <tr class="border-t border-outline-variant">
-                            <td class="px-4 py-3 font-label-md text-label-md text-on-surface">BVN</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_bvnCharge.ToString("N2")</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_bvnCost.ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-md text-label-md @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">&#8358;@((_bvnCharge - _bvnCost)).ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-sm text-label-sm @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">@(_bvnCharge > 0 ? Math.Round((_bvnCharge - _bvnCost) / _bvnCharge * 100, 1) : 0)%</td>
-                        </tr>
-                        <tr class="border-t border-outline-variant">
-                            <td class="px-4 py-3 font-label-md text-label-md text-on-surface">Phone</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_phoneCharge.ToString("N2")</td>
-                            <td class="px-4 py-3 font-body-md text-body-md text-on-surface">&#8358;@_phoneCost.ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-md text-label-md @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">&#8358;@((_phoneCharge - _phoneCost)).ToString("N2")</td>
-                            <td class="px-4 py-3 font-label-sm text-label-sm @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">@(_phoneCharge > 0 ? Math.Round((_phoneCharge - _phoneCost) / _phoneCharge * 100, 1) : 0)%</td>
-                        </tr>
-                    </tbody>
-                </table>
+                            <!-- BVN Pricing -->
+                            <div class="mb-6 pb-6 border-b border-outline-variant">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="material-symbols-outlined text-deep-navy" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+                                    <h3 class="font-label-md text-label-md uppercase text-on-surface">BVN Verification</h3>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
+                                        <input @bind="_bvnCharge" type="number" min="1" step="1"
+                                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
+                                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution pays per call</p>
+                                    </div>
+                                    <div>
+                                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC Cost (&#8358;)</label>
+                                        <input @bind="_bvnCost" type="number" min="1" step="1"
+                                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
+                                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">TruvoID's cost per verification</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-3 text-sm">
+                                    <span class="font-label-sm text-label-sm text-slate-gray">Margin:</span>
+                                    <span class="font-label-sm text-label-sm @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
+                                        &#8358;@((_bvnCharge - _bvnCost)).ToString("N2")
+                                    </span>
+                                    <span class="font-label-sm text-label-sm @((_bvnCharge - _bvnCost) >= 0 ? "text-[#137333]" : "text-error")">
+                                        (@(_bvnCharge > 0 ? Math.Round((_bvnCharge - _bvnCost) / _bvnCharge * 100, 1) : 0)%)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Phone Pricing -->
+                            <div class="mb-6 pb-6 border-b border-outline-variant">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="material-symbols-outlined text-deep-navy" style="font-variation-settings: 'FILL' 1;">phone_iphone</span>
+                                    <h3 class="font-label-md text-label-md uppercase text-on-surface">Phone Verification</h3>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">Institution Charge (&#8358;)</label>
+                                        <input @bind="_phoneCharge" type="number" min="1" step="1"
+                                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
+                                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">What the institution pays per call</p>
+                                    </div>
+                                    <div>
+                                        <label class="block font-label-sm text-label-sm text-slate-gray uppercase mb-2">NIMC Cost (&#8358;)</label>
+                                        <input @bind="_phoneCost" type="number" min="1" step="1"
+                                               class="w-full border border-outline-variant rounded px-3 py-2.5 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-deep-navy focus:border-deep-navy outline-none bg-transparent" />
+                                        <p class="font-label-sm text-[10px] text-slate-gray mt-1">TruvoID's cost per verification</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-3 text-sm">
+                                    <span class="font-label-sm text-label-sm text-slate-gray">Margin:</span>
+                                    <span class="font-label-sm text-label-sm @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error") font-semibold">
+                                        &#8358;@((_phoneCharge - _phoneCost)).ToString("N2")
+                                    </span>
+                                    <span class="font-label-sm text-label-sm @((_phoneCharge - _phoneCost) >= 0 ? "text-[#137333]" : "text-error")">
+                                        (@(_phoneCharge > 0 ? Math.Round((_phoneCharge - _phoneCost) / _phoneCharge * 100, 1) : 0)%)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Summary + Save -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="bg-surface-container-low rounded p-4 flex-1">
+                                    <p class="font-label-sm text-label-sm text-slate-gray uppercase mb-2">Monthly Estimate</p>
+                                    <div class="flex items-center gap-6">
+                                        <div>
+                                            <p class="font-body-sm text-body-sm text-slate-gray">Calls (MTD)</p>
+                                            <p class="font-label-md text-label-md text-deep-navy font-semibold">@_selected.TotalCallsMtd.ToString("N0")</p>
+                                        </div>
+                                        <div>
+                                            <p class="font-body-sm text-body-sm text-slate-gray">Spend (MTD)</p>
+                                            <p class="font-label-md text-label-md text-deep-navy font-semibold">&#8358;@_selected.TotalSpendMtd.ToString("N0")</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button @onclick="SavePricing" disabled="@(_saving)"
+                                        class="bg-deep-navy text-paper-white font-label-md text-label-md uppercase px-8 py-3 rounded hover:bg-ink transition-colors flex items-center gap-2 disabled:opacity-50">
+                                    <span class="material-symbols-outlined text-[16px]">save</span>
+                                    @(_saving ? "Saving..." : "Save Pricing")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     }
@@ -223,16 +219,22 @@
     private bool _loading = true;
     private bool _saving;
     private string? _saveMessage;
+    private string _search = string.Empty;
 
-    // NIN pricing
+    private List<InstitutionPricingAdminDto> _institutions = [];
+    private InstitutionPricingAdminDto? _selected;
+    private string? _selectedId;
+
+    // Pricing fields for selected institution
     private decimal _ninCharge = 100;
     private decimal _ninCost = 45;
-    // BVN pricing
     private decimal _bvnCharge = 150;
     private decimal _bvnCost = 65;
-    // Phone pricing
     private decimal _phoneCharge = 50;
     private decimal _phoneCost = 20;
+
+    private IEnumerable<InstitutionPricingAdminDto> FilteredInstitutions => _institutions
+        .Where(i => string.IsNullOrEmpty(_search) || i.InstitutionName.Contains(_search, StringComparison.OrdinalIgnoreCase) || i.Email.Contains(_search, StringComparison.OrdinalIgnoreCase));
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -240,32 +242,11 @@
 
         try
         {
-            var pricing = await Api.GetAsync<List<PricingDto>>("/v1/admin/pricing");
-            if (pricing is not null)
-            {
-                foreach (var p in pricing)
-                {
-                    switch (p.Type.ToUpperInvariant())
-                    {
-                        case "NIN":
-                            _ninCharge = p.InstitutionCharge;
-                            _ninCost = p.NimcCost;
-                            break;
-                        case "BVN":
-                            _bvnCharge = p.InstitutionCharge;
-                            _bvnCost = p.NimcCost;
-                            break;
-                        case "PHONE":
-                            _phoneCharge = p.InstitutionCharge;
-                            _phoneCost = p.NimcCost;
-                            break;
-                    }
-                }
-            }
+            _institutions = await Api.GetAsync<List<InstitutionPricingAdminDto>>("/v1/admin/pricing/institutions") ?? [];
         }
         catch
         {
-            // Use defaults on error
+            _institutions = [];
         }
         finally
         {
@@ -274,22 +255,55 @@
         }
     }
 
-    private Task SaveNinPricing() => SavePricing("NIN", _ninCharge, _ninCost);
-    private Task SaveBvnPricing() => SavePricing("BVN", _bvnCharge, _bvnCost);
-    private Task SavePhonePricing() => SavePricing("Phone", _phoneCharge, _phoneCost);
-
-    private async Task SavePricing(string type, decimal charge, decimal cost)
+    private void SelectInstitution(InstitutionPricingAdminDto inst)
     {
+        _selectedId = inst.InstitutionId;
+        _selected = inst;
+        _ninCharge = inst.NinPrice;
+        _ninCost = inst.NinCost;
+        _bvnCharge = inst.BvnPrice;
+        _bvnCost = inst.BvnCost;
+        _phoneCharge = inst.PhonePrice;
+        _phoneCost = inst.PhoneCost;
+        _saveMessage = null;
+    }
+
+    private async Task SavePricing()
+    {
+        if (_selected is null) return;
+
         _saving = true;
         _saveMessage = null;
+
         try
         {
-            await Api.PutAsync($"/v1/admin/pricing/{type.ToLowerInvariant()}", new UpdatePricingRequest
+            await Api.PutAsync($"/v1/admin/pricing/institutions/{_selected.InstitutionId}", new UpdateInstitutionPricingRequest
             {
-                InstitutionCharge = charge,
-                NimcCost = cost
+                NinPrice = _ninCharge,
+                NinCost = _ninCost,
+                BvnPrice = _bvnCharge,
+                BvnCost = _bvnCost,
+                PhonePrice = _phoneCharge,
+                PhoneCost = _phoneCost
             });
-            _saveMessage = $"{type} pricing saved successfully. Changes take effect on next billing cycle.";
+
+            // Update local state
+            var idx = _institutions.FindIndex(i => i.InstitutionId == _selected.InstitutionId);
+            if (idx >= 0)
+            {
+                _institutions[idx] = _institutions[idx] with
+                {
+                    NinPrice = _ninCharge,
+                    NinCost = _ninCost,
+                    BvnPrice = _bvnCharge,
+                    BvnCost = _bvnCost,
+                    PhonePrice = _phoneCharge,
+                    PhoneCost = _phoneCost
+                };
+                _selected = _institutions[idx];
+            }
+
+            _saveMessage = "Pricing saved successfully. Changes take effect on next verification call.";
         }
         catch (Exception ex)
         {
@@ -299,9 +313,26 @@
         {
             _saving = false;
         }
+
         StateHasChanged();
         await Task.Delay(4000);
         _saveMessage = null;
         StateHasChanged();
     }
+
+    private static string StatusClass(string status) => status switch
+    {
+        "Active"    => "bg-[#e6f4ea] text-[#137333] border border-[#ceead6]",
+        "Pending"   => "bg-[#fef7e0] text-[#b06000] border border-[#fde083]",
+        "Suspended" => "bg-[#fce8e6] text-[#c5221f] border border-[#f5c6c4]",
+        _           => "bg-surface-container text-slate-gray border border-outline-variant"
+    };
+
+    private static string StatusDot(string status) => status switch
+    {
+        "Active"    => "bg-[#34a853]",
+        "Pending"   => "bg-[#f9ab00]",
+        "Suspended" => "bg-[#ea4335]",
+        _           => "bg-slate-gray"
+    };
 }

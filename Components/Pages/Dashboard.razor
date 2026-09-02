@@ -43,17 +43,15 @@ else
                 <div>
                     <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider mb-2">Available Balance</p>
                     <div class="flex items-end gap-2">
-                        <span class="font-display-lg text-display-lg text-primary font-bold leading-none">&#8358;84,500</span>
-                        <span class="font-body-sm text-body-sm text-slate-gray mb-1">.00</span>
+                        <span class="font-display-lg text-display-lg text-primary font-bold leading-none">&#8358;@(_balance?.Balance.ToString("N2") ?? "0.00")</span>
                     </div>
-                    <p class="font-body-sm text-body-sm text-slate-gray mt-2">Estimated capacity: <span class="font-semibold text-on-surface">~1,690 verifications</span></p>
+                    <p class="font-body-sm text-body-sm text-slate-gray mt-2">Estimated capacity: <span class="font-semibold text-on-surface">~@(_balance != null ? ((int)(_balance.Balance / 50)).ToString("N0") : "0") verifications</span></p>
                 </div>
                 <div class="flex flex-col items-end gap-3">
                     <div class="flex items-center gap-2 bg-surface-container-low border border-outline-variant rounded px-3 py-1.5">
                         <span class="w-2 h-2 rounded-full bg-[#34a853] inline-block"></span>
                         <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Operational</span>
                     </div>
-                    <span class="font-body-sm text-[10px] text-slate-gray">Last topped up: 12 Aug 2026</span>
                 </div>
             </div>
             <div class="flex items-center gap-4 border-t border-outline-variant pt-6">
@@ -96,40 +94,25 @@ else
                     <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Total Verifications</span>
                     <span class="material-symbols-outlined text-deep-navy text-[20px]" style="font-variation-settings: 'FILL' 1;">fact_check</span>
                 </div>
-                <p class="font-display-lg text-display-lg text-primary font-bold">1,248</p>
-                <div class="flex items-center gap-1 text-[#34a853]">
-                    <span class="material-symbols-outlined text-[14px]">trending_up</span>
-                    <span class="font-label-sm text-label-sm">+12% from last month</span>
-                </div>
+                <p class="font-display-lg text-display-lg text-primary font-bold">@(_profile?.ApiCallsMtd.ToString("N0") ?? "0")</p>
             </div>
 
-            <!-- Success Rate -->
+            <!-- Successful -->
             <div class="bg-paper-white border border-outline-variant rounded p-6 flex flex-col gap-3">
                 <div class="flex items-center justify-between">
-                    <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Success Rate</span>
+                    <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Successful</span>
                     <span class="material-symbols-outlined text-deep-navy text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
                 </div>
-                <p class="font-display-lg text-display-lg text-primary font-bold">98.2%</p>
-                <div class="flex items-center gap-1 text-[#34a853]">
-                    <span class="material-symbols-outlined text-[14px]">trending_up</span>
-                    <span class="font-label-sm text-label-sm">+0.4% from last month</span>
-                </div>
+                <p class="font-display-lg text-display-lg text-primary font-bold">@(_profile?.SuccessfulCallsMtd.ToString("N0") ?? "0")</p>
             </div>
 
-            <!-- Failed & Pending -->
+            <!-- Failed -->
             <div class="bg-paper-white border border-outline-variant rounded p-6 flex flex-col gap-3">
                 <div class="flex items-center justify-between">
-                    <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Failed / Pending</span>
+                    <span class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Failed</span>
                     <span class="material-symbols-outlined text-deep-navy text-[20px]" style="font-variation-settings: 'FILL' 1;">report</span>
                 </div>
-                <div class="flex items-end gap-2">
-                    <p class="font-display-lg text-display-lg text-error font-bold">22</p>
-                    <span class="font-headline-md text-headline-md text-slate-gray mb-1">/ 4</span>
-                </div>
-                <div class="flex items-center gap-1 text-slate-gray">
-                    <span class="material-symbols-outlined text-[14px]">remove</span>
-                    <span class="font-label-sm text-label-sm">Normal range</span>
-                </div>
+                <p class="font-display-lg text-display-lg text-error font-bold">@(_profile?.FailedCallsMtd.ToString("N0") ?? "0")</p>
             </div>
         </div>
 
@@ -145,40 +128,44 @@ else
                         <tr>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Transaction ID</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Type</th>
-                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Subject</th>
+                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Amount</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Status</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Time</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b border-outline-variant table-row-hover transition-colors">
-                            <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">TRV-2082941</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-surface-container-low border border-outline-variant rounded px-2 py-1 font-label-sm text-label-sm text-on-surface">NIN</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Amaka O. ·····1234</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-[#e6f4ea] text-[#137333] border border-[#ceead6] rounded px-2 py-1 font-label-sm text-label-sm">Match</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">Today, 14:32</td>
-                        </tr>
-                        <tr class="border-b border-outline-variant table-row-hover transition-colors">
-                            <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">TRV-2082940</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-surface-container-low border border-outline-variant rounded px-2 py-1 font-label-sm text-label-sm text-on-surface">BVN</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Chukwu E. ·····5678</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-[#e6f4ea] text-[#137333] border border-[#ceead6] rounded px-2 py-1 font-label-sm text-label-sm">Match</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">Today, 13:07</td>
-                        </tr>
-                        <tr class="border-b border-outline-variant table-row-hover transition-colors">
-                            <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">TRV-2082939</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-surface-container-low border border-outline-variant rounded px-2 py-1 font-label-sm text-label-sm text-on-surface">Phone</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Eze B. ·····9012</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-[#fce8e6] text-[#c5221f] border border-[#f5c6c4] rounded px-2 py-1 font-label-sm text-label-sm">No Match</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">Today, 11:44</td>
-                        </tr>
-                        <tr class="table-row-hover transition-colors">
-                            <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">TRV-2082938</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-surface-container-low border border-outline-variant rounded px-2 py-1 font-label-sm text-label-sm text-on-surface">NIN</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Ibrahim T. ·····3456</td>
-                            <td class="px-6 py-4"><span class="inline-flex items-center gap-1 bg-[#fef7e0] text-[#b06000] border border-[#fde083] rounded px-2 py-1 font-label-sm text-label-sm">Pending</span></td>
-                            <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">Yesterday, 17:20</td>
-                        </tr>
+                        @if (_recentTransactions.Any())
+                        {
+                            @foreach (var tx in _recentTransactions)
+                            {
+                                <tr class="border-b border-outline-variant table-row-hover transition-colors">
+                                    <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">@(tx.Reference ?? tx.Id[..8])</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1 bg-surface-container-low border border-outline-variant rounded px-2 py-1 font-label-sm text-label-sm text-on-surface">
+                                            @(tx.Type == WalletTransactionType.Credit ? "Top Up" : "Verification")
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 font-body-sm text-body-sm @(tx.Type == WalletTransactionType.Credit ? "text-[#137333]" : "text-on-surface")">
+                                        @(tx.Type == WalletTransactionType.Credit ? "+" : "-")&#8358;@tx.Amount.ToString("N2")
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1 @(tx.Type == WalletTransactionType.Credit ? "bg-[#e6f4ea] text-[#137333] border border-[#ceead6]" : "bg-[#fef7e0] text-[#b06000] border border-[#fde083]") rounded px-2 py-1 font-label-sm text-label-sm">
+                                            @(tx.Type == WalletTransactionType.Credit ? "Credit" : "Debit")
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@FormatTimeAgo(tx.CreatedAt)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <span class="material-symbols-outlined text-[40px] text-outline-variant mb-3 block">receipt_long</span>
+                                    <p class="font-body-md text-body-md text-slate-gray">No recent transactions</p>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -191,6 +178,8 @@ else
 @code {
     private InstitutionProfileResponse? _profile;
     private bool _profileLoaded;
+    private WalletBalanceResponse? _balance;
+    private List<WalletTransactionResponse> _recentTransactions = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -198,16 +187,35 @@ else
 
         try
         {
-            _profile = await Api.GetAsync<InstitutionProfileResponse>("/v1/institution/profile");
+            // Load profile, balance, and recent transactions in parallel
+            var profileTask = Api.GetAsync<InstitutionProfileResponse>("/v1/institution/profile");
+            var balanceTask = Api.GetAsync<WalletBalanceResponse>("/v1/wallet/balance");
+            var transactionsTask = Api.GetAsync<List<WalletTransactionResponse>>("/v1/wallet/transactions?pageSize=5");
+
+            await Task.WhenAll(profileTask, balanceTask, transactionsTask);
+
+            _profile = await profileTask;
+            _balance = await balanceTask;
+            _recentTransactions = await transactionsTask ?? [];
         }
         catch
         {
-            // If the endpoint isn't available yet, fall through to show dashboard
+            // If endpoints aren't available yet, fall through to show empty dashboard
         }
         finally
         {
             _profileLoaded = true;
             StateHasChanged();
         }
+    }
+
+    private string FormatTimeAgo(DateTime date)
+    {
+        var span = DateTime.UtcNow - date;
+        if (span.TotalMinutes < 1) return "Just now";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}m ago";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours}h ago";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays}d ago";
+        return date.ToString("dd MMM yyyy");
     }
 }

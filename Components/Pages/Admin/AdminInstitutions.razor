@@ -68,7 +68,6 @@
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Institution</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Status</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Wallet Balance</th>
-                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Tokens</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">API Calls (MTD)</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Joined</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Actions</th>
@@ -89,12 +88,11 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">&#8358;@inst.WalletBalance.ToString("N0")</td>
-                                <td class="px-6 py-4 font-label-md text-label-md text-warm-gold">@inst.Tokens.ToString("N0")</td>
                                 <td class="px-6 py-4 font-body-md text-body-md text-on-surface">@inst.ApiCallsMtd.ToString("N0")</td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@inst.JoinedDate.ToString("dd MMM yyyy")</td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
-                                        <button class="font-label-sm text-label-sm text-deep-navy hover:underline uppercase">View</button>
+                                        <button @onclick="() => ViewInstitution(inst)" class="font-label-sm text-label-sm text-deep-navy hover:underline uppercase">View</button>
                                         <span class="text-outline-variant">·</span>
                                         <button @onclick="() => OpenRecordPayment(inst)" class="font-label-sm text-label-sm text-warm-gold hover:underline uppercase">Record Payment</button>
                                         @if (inst.Status == "Active")
@@ -150,14 +148,88 @@
                        class="w-full border border-outline-variant rounded px-3 py-2 font-body-md text-body-md text-on-surface focus:ring-1 focus:ring-deep-navy outline-none mb-4" />
 
                 <div class="bg-surface-container-low border border-surface-variant rounded p-3 mb-6">
-                    <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Tokens to allot</p>
-                    <p class="font-headline-md text-headline-md text-warm-gold font-bold">&#8776; @(PaymentTokens.ToString("N0")) tokens</p>
+                    <p class="font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Amount to Credit</p>
+                    <p class="font-headline-md text-headline-md text-warm-gold font-bold">&#8358;@_paymentAmount.ToString("N2")</p>
                 </div>
 
                 <div class="flex justify-end gap-3">
                     <button @onclick="CloseRecordPayment" disabled="@_paymentSubmitting" class="px-4 py-2 border border-outline-variant text-on-surface font-label-sm text-label-sm uppercase rounded hover:bg-surface-container-low transition-colors">Cancel</button>
                     <button @onclick="SubmitRecordPayment" disabled="@(_paymentSubmitting || _paymentAmount <= 0)" class="px-4 py-2 bg-warm-gold text-paper-white font-label-sm text-label-sm uppercase rounded hover:opacity-90 transition-opacity disabled:opacity-50">
                         @(_paymentSubmitting ? "Recording..." : "Record Payment")
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (_viewTarget is not null)
+    {
+        <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+            <div class="bg-paper-white rounded-lg border border-outline-variant shadow-lg w-full max-w-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-headline-md text-headline-md text-on-surface">Institution Details</h3>
+                    <button @onclick="CloseViewInstitution" class="p-1 hover:bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-slate-gray">close</span>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-deep-navy">business</span>
+                        <div>
+                            <p class="font-label-sm text-label-sm text-slate-gray uppercase">Institution Name</p>
+                            <p class="font-body-md text-body-md text-on-surface">@_viewTarget.Name</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-deep-navy">mail</span>
+                        <div>
+                            <p class="font-label-sm text-label-sm text-slate-gray uppercase">Email</p>
+                            <p class="font-body-md text-body-md text-on-surface">@_viewTarget.Email</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-deep-navy">info</span>
+                        <div>
+                            <p class="font-label-sm text-label-sm text-slate-gray uppercase">Status</p>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-label-sm text-label-sm @StatusClass(_viewTarget.Status)">
+                                <span class="w-1.5 h-1.5 rounded-full @StatusDot(_viewTarget.Status)"></span>
+                                @_viewTarget.Status
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-deep-navy">account_balance_wallet</span>
+                        <div>
+                            <p class="font-label-sm text-label-sm text-slate-gray uppercase">Wallet Balance</p>
+                            <p class="font-headline-md text-headline-md text-deep-navy font-bold">&#8358;@_viewTarget.WalletBalance.ToString("N2")</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-deep-navy">analytics</span>
+                        <div>
+                            <p class="font-label-sm text-label-sm text-slate-gray uppercase">API Calls (MTD)</p>
+                            <p class="font-body-md text-body-md text-on-surface">@_viewTarget.ApiCallsMtd.ToString("N0")</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-4 bg-surface-container-low rounded">
+                        <span class="material-symbols-outlined text-deep-navy">calendar_today</span>
+                        <div>
+                            <p class="font-label-sm text-label-sm text-slate-gray uppercase">Joined</p>
+                            <p class="font-body-md text-body-md text-on-surface">@_viewTarget.JoinedDate.ToString("dd MMMM yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-outline-variant">
+                    <button @onclick="CloseViewInstitution" class="px-4 py-2 border border-outline-variant text-on-surface font-label-sm text-label-sm uppercase rounded hover:bg-surface-container-low transition-colors">Close</button>
+                    <button @onclick="() => { var target = _viewTarget; CloseViewInstitution(); if (target is not null) OpenRecordPayment(target); }" class="px-4 py-2 bg-warm-gold text-paper-white font-label-sm text-label-sm uppercase rounded hover:opacity-90 transition-opacity">
+                        Record Payment
                     </button>
                 </div>
             </div>
@@ -170,15 +242,23 @@
     private string _statusFilter = string.Empty;
     private bool _loading = true;
     private List<AdminInstitutionDto> _institutions = [];
+    private AdminInstitutionDto? _viewTarget;
 
-    private const decimal NairaPerToken = 10m;
     private AdminInstitutionDto? _paymentTarget;
     private decimal _paymentAmount = 10000;
     private string _paymentDescription = string.Empty;
     private string? _paymentError;
     private bool _paymentSubmitting;
 
-    private decimal PaymentTokens => Math.Floor(_paymentAmount / NairaPerToken);
+    private void ViewInstitution(AdminInstitutionDto inst)
+    {
+        _viewTarget = inst;
+    }
+
+    private void CloseViewInstitution()
+    {
+        _viewTarget = null;
+    }
 
     private void OpenRecordPayment(AdminInstitutionDto inst)
     {
@@ -214,8 +294,7 @@
                 var updated = _institutions[idx];
                 _institutions[idx] = updated with
                 {
-                    WalletBalance = updated.WalletBalance + _paymentAmount,
-                    Tokens = updated.Tokens + PaymentTokens
+                    WalletBalance = updated.WalletBalance + _paymentAmount
                 };
             }
 

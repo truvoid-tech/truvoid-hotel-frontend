@@ -10,6 +10,7 @@ public static class EndpointRegistration
         app.MapWalletAlertEndpoints();
         app.MapPasswordResetEndpoints();
         app.MapAdminApprovalEndpoints();
+        app.MapPricingEndpoints();
 
         return app;
     }

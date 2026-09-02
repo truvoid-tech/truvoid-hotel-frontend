@@ -17,7 +17,6 @@
             <div>
                 <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-4">Current Balance</p>
                 <h3 class="font-display-lg text-display-lg text-deep-navy font-bold">&#8358;@(_balance?.Balance.ToString("N2") ?? "0.00")</h3>
-                <p class="font-label-md text-label-md text-warm-gold font-semibold mt-1">&#8776; @(_balance?.Tokens.ToString("N0") ?? "0") tokens</p>
                 <p class="font-body-sm text-body-sm text-on-surface-variant mt-2 flex items-center gap-2">
                     <span class="material-symbols-outlined text-warm-gold" style="font-size: 16px;">verified</span>
                     Available for immediate verification operations
@@ -48,26 +47,23 @@
                 </div>
             </div>
 
-            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 shadow-[0_12px_32px_-4px_rgba(31,56,100,0.05)] flex-1 flex flex-col justify-center">
-                <div class="flex items-start gap-4">
+            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 shadow-[0_12px_32px_-4px_rgba(31,56,100,0.05)] flex-1 flex flex-col justify-center">                        <div class="flex items-start gap-4">
                     <div class="bg-primary-fixed p-3 rounded-lg">
                         <span class="material-symbols-outlined text-primary">receipt_long</span>
                     </div>
                     <div>
-                        <h4 class="font-body-lg text-body-lg text-deep-navy font-semibold">Pricing</h4>
+                        <h4 class="font-body-lg text-body-lg text-deep-navy font-semibold">Your Rates</h4>
                         <div class="space-y-1 mt-2">
-                            @if (_tokenPricing?.Rates.Any() == true)
+                            @if (_pricing?.Any() == true)
                             {
-                                @foreach (var rate in _tokenPricing.Rates)
+                                @foreach (var rate in _pricing)
                                 {
-                                    <p class="font-body-sm text-body-sm text-on-surface-variant">@rate.Type: &#8358;@rate.PricePerCall.ToString("N0")/lookup (@rate.TokenCost.ToString("N0") tokens)</p>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant">@rate.Type: &#8358;@rate.PricePerCall.ToString("N0")/lookup</p>
                                 }
                             }
                             else
                             {
-                                <p class="font-body-sm text-body-sm text-on-surface-variant">NIN: &#8358;300/lookup</p>
-                                <p class="font-body-sm text-body-sm text-on-surface-variant">BVN: &#8358;300/lookup</p>
-                                <p class="font-body-sm text-body-sm text-on-surface-variant">Phone: &#8358;300/lookup</p>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Loading rates...</p>
                             }
                         </div>
                     </div>
@@ -134,7 +130,7 @@
 @code {
     private WalletBalanceResponse? _balance;
     private List<WalletTransactionResponse>? _recentTransactions;
-    private TokenPricingResponse? _tokenPricing;
+    private List<InstitutionPricingRateDto>? _pricing;
     private decimal _monthlySpend;
     private int _monthlyPercent;
 
@@ -144,7 +140,7 @@
         {
             _balance = await Api.GetAsync<WalletBalanceResponse>("/v1/wallet/balance");
             _recentTransactions = await Api.GetAsync<List<WalletTransactionResponse>>("/v1/wallet/transactions?page=1&pageSize=10");
-            _tokenPricing = await Api.GetAsync<TokenPricingResponse>("/v1/pricing/tokens");
+            _pricing = await Api.GetAsync<List<InstitutionPricingRateDto>>("/v1/pricing/my-rates");
 
             if (_recentTransactions is not null)
             {

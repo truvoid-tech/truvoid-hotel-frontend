@@ -67,7 +67,6 @@
                         <tr>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Institution</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Amount</th>
-                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Tokens</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Reference</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Submitted</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Actions</th>
@@ -82,7 +81,6 @@
                                     <p class="font-body-sm text-[11px] text-slate-gray">@topup.Email</p>
                                 </td>
                                 <td class="px-6 py-4 font-label-md text-label-md text-deep-navy">&#8358;@topup.Amount.ToString("N0")</td>
-                                <td class="px-6 py-4 font-label-md text-label-md text-warm-gold">@topup.Tokens.ToString("N0")</td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-on-surface font-mono">@topup.Reference</td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@topup.Submitted</td>
                                 <td class="px-6 py-4">
@@ -102,7 +100,7 @@
                         @if (!_financials.PendingTopUps.Any())
                         {
                             <tr>
-                                <td colspan="6" class="px-6 py-8 text-center font-body-sm text-body-sm text-slate-gray">No pending top-ups.</td>
+                                <td colspan="5" class="px-6 py-8 text-center font-body-sm text-body-sm text-slate-gray">No pending top-ups.</td>
                             </tr>
                         }
                     </tbody>
@@ -131,7 +129,6 @@
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Institution</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Type</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Amount</th>
-                            <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Tokens</th>
                             <th class="text-left px-6 py-3 font-label-sm text-label-sm text-slate-gray uppercase tracking-wider">Date</th>
                         </tr>
                     </thead>
@@ -148,9 +145,6 @@
                                 </td>
                                 <td class="px-6 py-4 font-label-md text-label-md @(tx.Amount > 0 ? "text-[#137333]" : "text-error")">
                                     @(tx.Amount > 0 ? "+" : "")&#8358;@Math.Abs(tx.Amount).ToString("N2")
-                                </td>
-                                <td class="px-6 py-4 font-label-md text-label-md @(tx.Tokens > 0 ? "text-[#137333]" : "text-error")">
-                                    @(tx.Tokens > 0 ? "+" : "")@Math.Abs(tx.Tokens).ToString("N0")
                                 </td>
                                 <td class="px-6 py-4 font-body-sm text-body-sm text-slate-gray">@tx.Date</td>
                             </tr>

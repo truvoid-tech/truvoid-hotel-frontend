@@ -37,8 +37,8 @@
                     <div class="flex justify-between items-start mb-8">
                         <span class="material-symbols-outlined card-icon text-[32px] text-slate-gray transition-colors duration-300">badge</span>
                         <div class="bg-surface-container px-3 py-1.5 rounded flex items-center gap-2">
-                            <span class="font-label-md text-label-md text-deep-navy">&#8358;100.00</span>
-                            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ Hit</span>
+                            <span class="font-label-md text-label-md text-deep-navy">&#8358;@GetPrice("NIN").ToString("N2")</span>
+                            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ lookup</span>
                         </div>
                     </div>
                     <h3 class="font-headline-md text-headline-md text-deep-navy mb-3">National Identity Number</h3>
@@ -55,8 +55,8 @@
                     <div class="flex justify-between items-start mb-8">
                         <span class="material-symbols-outlined card-icon text-[32px] text-slate-gray transition-colors duration-300">account_balance</span>
                         <div class="bg-surface-container px-3 py-1.5 rounded flex items-center gap-2">
-                            <span class="font-label-md text-label-md text-deep-navy">&#8358;150.00</span>
-                            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ Hit</span>
+                            <span class="font-label-md text-label-md text-deep-navy">&#8358;@GetPrice("BVN").ToString("N2")</span>
+                            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ lookup</span>
                         </div>
                     </div>
                     <h3 class="font-headline-md text-headline-md text-deep-navy mb-3">Bank Verification Number</h3>
@@ -73,8 +73,8 @@
                     <div class="flex justify-between items-start mb-8">
                         <span class="material-symbols-outlined card-icon text-[32px] text-slate-gray transition-colors duration-300">phone_iphone</span>
                         <div class="bg-surface-container px-3 py-1.5 rounded flex items-center gap-2">
-                            <span class="font-label-md text-label-md text-deep-navy">&#8358;50.00</span>
-                            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ Hit</span>
+                            <span class="font-label-md text-label-md text-deep-navy">&#8358;@GetPrice("PHONE").ToString("N2")</span>
+                            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">/ lookup</span>
                         </div>
                     </div>
                     <h3 class="font-headline-md text-headline-md text-deep-navy mb-3">Phone Number (Telco)</h3>
@@ -323,12 +323,38 @@
     private bool _isLoading;
     private string? _errorMessage;
     private VerificationResponse? _result;
+    private List<InstitutionPricingRateDto> _rates = [];
+
+    // Pricing defaults (used as fallback if API fails)
+    private const decimal DefaultNinPrice = 100m;
+    private const decimal DefaultBvnPrice = 150m;
+    private const decimal DefaultPhonePrice = 50m;
 
     // Processing animation
     private int _progress;
     private string _elapsedTime = "0:00";
     private System.Timers.Timer? _timer;
     private int _elapsedSeconds;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _rates = await Api.GetAsync<List<InstitutionPricingRateDto>>("/v1/pricing/my-rates") ?? [];
+        }
+        catch
+        {
+            // Fallback to defaults
+        }
+    }
+
+    private decimal GetPrice(string type) => _rates.FirstOrDefault(r =>
+        r.Type.Equals(type, StringComparison.OrdinalIgnoreCase))?.PricePerCall ?? type switch
+    {
+        "NIN" => DefaultNinPrice,
+        "BVN" => DefaultBvnPrice,
+        _ => DefaultPhonePrice
+    };
 
     private void SelectType(string type) => SelectedType = type;
 
