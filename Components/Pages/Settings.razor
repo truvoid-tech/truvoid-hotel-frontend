@@ -18,7 +18,7 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex border-b border-outline-variant mb-8">
+    <div class="flex border-b border-outline-variant mb-8 tabs-scroll">
         <button @onclick='() => _activeTab = "profile"'
                 class="@TabClass("profile")">
             <span class="material-symbols-outlined text-[16px] mr-2 align-middle">business</span>
@@ -317,8 +317,8 @@
     private bool _showDeactivateConfirm = false;
 
     private string TabClass(string tab) => _activeTab == tab
-        ? "px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 border-warm-gold text-deep-navy"
-        : "px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 border-transparent text-slate-gray hover:text-deep-navy hover:bg-surface-container-low";
+        ? "px-5 sm:px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 border-warm-gold text-deep-navy shrink-0"
+        : "px-5 sm:px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 border-transparent text-slate-gray hover:text-deep-navy hover:bg-surface-container-low shrink-0";
 
     private string ToggleClass(bool on) => on
         ? "bg-warm-gold relative inline-flex h-6 w-11 items-center rounded-full transition-colors"

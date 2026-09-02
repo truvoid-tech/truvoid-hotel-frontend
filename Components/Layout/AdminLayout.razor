@@ -118,14 +118,14 @@
         <!-- Footer -->
         <footer class="mt-auto border-t border-outline-variant bg-surface-container-low px-margin-mobile md:px-margin-desktop py-4">
             <div class="flex items-center justify-between">
-                <span class="font-label-sm text-[10px] text-slate-gray opacity-60">TruvoID Platform Admin — Internal Use Only. Unauthorized access is prohibited.</span>
+                <span class="font-label-sm text-[10px] text-slate-gray opacity-60 line-clamp-1">TruvoID Platform Admin — Internal Use Only. Unauthorized access is prohibited.</span>
                 <span class="font-label-sm text-label-sm text-slate-gray opacity-60">V 2.4.1</span>
             </div>
         </footer>
     </main>
 
     <!-- Mobile Bottom Nav -->
-    <nav class="md:hidden flex justify-around items-center w-full h-16 bg-ink border-t border-white/10 shrink-0 fixed bottom-0 left-0 z-50">
+    <nav class="md:hidden flex justify-around items-center w-full h-16 bg-ink border-t border-white/10 shrink-0 fixed bottom-0 left-0 z-50 mobile-bottom-nav">
         <a href="/admin" class="flex flex-col items-center justify-center w-full h-full @(IsActive("/admin", exact: true) ? "text-warm-gold border-t-2 border-warm-gold" : "text-paper-white/50 hover:text-paper-white")">
             <span class="material-symbols-outlined text-[20px]" style="@(ActiveFill("/admin", exact: true))">dashboard</span>
             <span class="text-[9px] font-label-sm mt-0.5">Overview</span>

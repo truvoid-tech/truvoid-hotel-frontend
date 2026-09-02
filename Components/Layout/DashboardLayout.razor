@@ -99,9 +99,9 @@
         <!-- Compliance Footer -->
         <footer class="mt-auto border-t border-outline-variant bg-surface-container-low px-margin-mobile md:px-margin-desktop py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3 opacity-60 grayscale">
-                    <span class="material-symbols-outlined text-deep-navy">policy</span>
-                    <span class="font-label-sm text-[10px] text-slate-gray max-w-xl leading-relaxed">
+                <div class="flex items-center gap-3 opacity-60 grayscale min-w-0">
+                    <span class="material-symbols-outlined text-deep-navy shrink-0">policy</span>
+                    <span class="font-label-sm text-[10px] text-slate-gray leading-relaxed line-clamp-3 md:line-clamp-none">
                         MANDATORY COMPLIANCE NOTICE: TruvoID operates as an authorized NIMC reseller. All identity verification requests are logged and subject to audit. Unauthorized access or misuse of this panel is strictly prohibited and subject to legal prosecution under the NDPR and applicable federal laws.
                     </span>
                 </div>
@@ -111,7 +111,7 @@
     </main>
 
     <!-- Mobile Bottom Nav -->
-    <nav class="md:hidden flex justify-around items-center w-full h-16 bg-surface border-t border-outline-variant shrink-0 fixed bottom-0 left-0 z-50">
+    <nav class="md:hidden flex justify-around items-center w-full h-16 bg-surface border-t border-outline-variant shrink-0 fixed bottom-0 left-0 z-50 mobile-bottom-nav">
         <a href="/dashboard" class="flex flex-col items-center justify-center w-full h-full @(IsActive("/dashboard") ? "text-warm-gold border-t-2 border-warm-gold" : "text-slate-gray hover:text-deep-navy")">
             <span class="material-symbols-outlined" style="@(ActiveFill("/dashboard"))">dashboard</span>
             <span class="text-[10px] font-label-sm mt-1">Dashboard</span>

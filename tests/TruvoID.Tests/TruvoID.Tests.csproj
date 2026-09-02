@@ -21,4 +21,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <!-- Link real EmailTemplates from Infrastructure so tests validate the actual HTML -->
+  <ItemGroup>
+    <Compile Include="..\..\src\TruvoID.Infrastructure\Services\EmailTemplates.cs" Link="Services\EmailTemplates.cs" />
+  </ItemGroup>
+
 </Project>

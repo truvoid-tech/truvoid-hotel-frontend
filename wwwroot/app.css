@@ -6,10 +6,78 @@
     --bs-link-color-rgb: 31, 56, 100;
     --bs-link-hover-color: #B8860B;
     --bs-link-hover-color-rgb: 184, 134, 11;
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
 }
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+}
+
+/* ── Mobile safe-area padding ───────────────────────────────────── */
+.mobile-bottom-nav {
+    padding-bottom: var(--sab);
+}
+
+/* ── Touch targets: minimum 44×44px for accessibility ───────────── */
+@media (pointer: coarse) {
+    button, a, input[type="checkbox"], input[type="radio"], select {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* ── Display font scaling on small screens ───────────────────────── */
+@media (max-width: 640px) {
+    .text-display-lg {
+        font-size: 1.5rem !important;
+        line-height: 1.2 !important;
+    }
+    .text-display-xl {
+        font-size: 1.75rem !important;
+        line-height: 1.2 !important;
+    }
+}
+
+/* ── Scrollable horizontal containers ────────────────────────────── */
+.table-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+}
+.table-scroll::-webkit-scrollbar { height: 4px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 2px; }
+
+/* ── Scrollable tab bars ─────────────────────────────────────────── */
+.tabs-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.tabs-scroll::-webkit-scrollbar { display: none; }
+
+/* ── Compact mobile padding utility ──────────────────────────────── */
+@media (max-width: 640px) {
+    .card-compact { padding: 1rem !important; }
+}
+
+/* ── Mobile modal: full-screen on small devices ──────────────────── */
+@media (max-width: 640px) {
+    .modal-mobile {
+        position: fixed;
+        inset: 0;
+        border-radius: 0;
+        max-width: 100%;
+        max-height: 100%;
+        overflow-y: auto;
+    }
 }
 
 a, .btn-link {
