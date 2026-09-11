@@ -247,46 +247,23 @@
                 </div>
             </div>
 
-            <!-- Danger Zone -->
-            <div class="bg-paper-white border border-error/30 rounded-xl overflow-hidden">
-                <div class="p-6 md:p-8 border-b border-error/20">
-                    <h3 class="font-headline-md text-headline-md text-error">Danger Zone</h3>
-                    <p class="font-body-sm text-body-sm text-slate-gray mt-1">Irreversible actions that affect your institution.</p>
+            <!-- Session -->
+            <div class="bg-paper-white border border-outline-variant rounded-xl overflow-hidden">
+                <div class="p-6 md:p-8 border-b border-outline-variant">
+                    <h3 class="font-headline-md text-headline-md text-on-surface">Session</h3>
+                    <p class="font-body-sm text-body-sm text-slate-gray mt-1">Sign out of your account on this device.</p>
                 </div>
                 <div class="p-6 md:p-8 flex items-center justify-between">
                     <div>
-                        <p class="font-body-sm text-body-sm text-on-surface font-medium">Deactivate Account</p>
-                        <p class="font-body-sm text-[12px] text-slate-gray">This will disable all verification operations and API access.</p>
+                        <p class="font-body-sm text-body-sm text-on-surface font-medium">Sign Out</p>
+                        <p class="font-body-sm text-[12px] text-slate-gray">You'll need to sign in again to access your dashboard.</p>
                     </div>
-                    <button @onclick='() => _showDeactivateConfirm = true' class="border border-error text-error font-label-sm text-label-sm uppercase py-2 px-4 rounded hover:bg-error-container/30 transition-colors">
-                        Deactivate
-                    </button>
+                    <LogoutButton CssClass="border border-outline text-on-surface font-label-sm text-label-sm uppercase py-2 px-4 rounded hover:bg-surface-container-low transition-colors flex items-center gap-2" />
                 </div>
             </div>
         </div>
     }
 </div>
-
-@if (_showDeactivateConfirm)
-{
-    <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-paper-white rounded-lg shadow-xl max-w-sm w-full p-8 text-center">
-            <span class="material-symbols-outlined text-error text-[40px] mb-4">warning</span>
-            <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Deactivate Account?</h3>
-            <p class="font-body-sm text-body-sm text-slate-gray mb-6">This will suspend all API access for your institution. This action cannot be undone without contacting support.</p>
-            <div class="flex gap-3">
-                <button @onclick='() => _showDeactivateConfirm = false'
-                        class="flex-1 px-4 py-2 border border-outline-variant text-on-surface font-label-md text-label-md uppercase rounded hover:bg-surface-container-low transition-colors">
-                    Cancel
-                </button>
-                <button @onclick="ConfirmDeactivate"
-                        class="flex-1 px-4 py-2 bg-error text-on-error font-label-md text-label-md uppercase rounded hover:opacity-90 transition-opacity">
-                    Deactivate
-                </button>
-            </div>
-        </div>
-    </div>
-}
 
 @code {
     private string _activeTab = "profile";
@@ -314,7 +291,6 @@
     private string _confirmPassword = string.Empty;
     private string? _passwordError;
     private bool _changingPassword = false;
-    private bool _showDeactivateConfirm = false;
 
     private string TabClass(string tab) => _activeTab == tab
         ? "px-5 sm:px-8 py-4 font-label-md text-label-md uppercase tracking-wider border-b-2 border-warm-gold text-deep-navy shrink-0"
@@ -468,18 +444,4 @@
         }
     }
 
-    private async Task ConfirmDeactivate()
-    {
-        _showDeactivateConfirm = false;
-        try
-        {
-            var response = await Api.PostRawAsync("/v1/auth/deactivate", new { });
-            if (response.IsSuccessStatusCode)
-            {
-                await Api.GetAsync<object>("v1/auth/logout").ConfigureAwait(false);
-            }
-        }
-        catch { }
-        Nav.NavigateTo("/login", forceLoad: true);
-    }
 }
